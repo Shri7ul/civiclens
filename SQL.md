@@ -724,3 +724,13 @@ FOREIGN KEY (officer_id)
 REFERENCES officers(id)
 ON DELETE CASCADE;
 ```
+
+```sql id="39aj8v"
+ALTER TABLE admins
+ADD COLUMN user_id INT;
+```
+```sql id="39aj8v"
+UPDATE admins
+SET user_id = 7
+WHERE id = 1;
+```

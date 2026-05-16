@@ -9,6 +9,9 @@ from models.authority_model import Authority
 from models.contractor_model import Contractor
 from models.police_model import PoliceRequest
 from models.audit_log_model import AuditLog
+from models.admin_model import Admin
+from auth.hashing import hash_password
+from models.user_model import User
 
 router = APIRouter()
 
@@ -113,6 +116,7 @@ def approve_user(user_id: int, payload: dict, db: Session = Depends(get_db)):
     db.add(log)
 
     db.commit()
+    print("AUDIT LOG SAVED")
 
     return {"message": f"User {user.id} approved"}
 
@@ -134,6 +138,7 @@ def reject_user(user_id: int, payload: dict, db: Session = Depends(get_db)):
     db.add(log)
 
     db.commit()
+    print("AUDIT LOG SAVED")
 
     return {"message": f"User {user.id} rejected"}
 
@@ -157,3 +162,76 @@ def system_stats(db: Session = Depends(get_db)):
         'total_police_requests': total_police_requests,
         'total_active_investigations': active_investigations
     }
+
+
+@router.get("/audit-logs")
+def audit_logs(db: Session = Depends(get_db)):
+    results = db.query(AuditLog).order_by(AuditLog.timestamp.desc()).limit(50).all()
+    out = []
+    for r in results:
+        out.append({
+            'user_id': r.user_id,
+            'action': r.action
+        })
+    return out
+
+
+@router.get("/admin-by-user/{user_id}")
+def admin_by_user(user_id: int, db: Session = Depends(get_db)):
+    """Find admin record mapped to a user id.
+
+    Returns {"admin_id": id} or 404 if not found.
+    """
+    admin = db.query(Admin).filter(Admin.user_id == user_id).first()
+    if not admin:
+        raise HTTPException(status_code=404, detail="Admin record not found for given user_id")
+    return {"admin_id": admin.id}
+
+
+@router.post("/register-admin")
+def register_admin(payload: dict, db: Session = Depends(get_db)):
+    """Register an admin using a server-side invitation code.
+
+    Body: { invitation_code, name, email, phone, password }
+    """
+    invite = payload.get('invitation_code')
+    name = payload.get('name')
+    email = payload.get('email')
+    phone = payload.get('phone')
+    password = payload.get('password')
+
+    if invite != "8899":
+        return {"message": "Invalid Invitation Code"}
+
+    if not (name and email and password):
+        raise HTTPException(status_code=400, detail="name, email and password are required")
+
+    # check existing user
+    existing = db.query(User).filter(User.email == email).first()
+    if existing:
+        raise HTTPException(status_code=400, detail="User with this email already exists")
+
+    hashed = hash_password(password)
+
+    user = User(
+        name=name,
+        email=email,
+        password=hashed,
+        role="admin",
+        is_approved=True
+    )
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+
+    # create admins table entry
+    admin = Admin(
+        user_id=user.id,
+        name=name,
+        email=email,
+        phone=phone
+    )
+    db.add(admin)
+    db.commit()
+
+    return {"message": "Admin Registered Successfully"}

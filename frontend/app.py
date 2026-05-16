@@ -20,8 +20,6 @@ def fetch_case_documents(police_request_id):
     except Exception:
         return []
     return []
-
-
 def render_documents_section(police_request_id):
     docs = fetch_case_documents(police_request_id)
     if not docs:
@@ -90,7 +88,7 @@ st.title("CivicLens")
 
 menu = st.sidebar.selectbox(
     "Menu",
-    ["Login", "Register"]
+    ["Login", "Register", "Admin Register"]
 )
 
 # REGISTER
@@ -112,40 +110,46 @@ if menu == "Register":
     name = st.text_input("Name")
 
     email = st.text_input("Email")
-
     password = st.text_input(
         "Password",
         type="password"
     )
 
     # CITIZEN
+    confirm_password = st.text_input(
+        "Confirm Password",
+        type="password"
+    )
+    
     if role == "citizen":
 
         phone = st.text_input("Phone Number")
 
         if st.button("Register Citizen"):
-
-            data = {
-                "name": name,
-                "email": email,
-                "password": password,
-                "phone": phone,
-                "role": "citizen"
-            }
-
-            response = requests.post(
-                f"{API_URL}/register",
-                json=data
-            )
-
-            result = response.json()
-
-            if response.status_code == 200:
-
-                st.success(result["message"])
+            if password != confirm_password:
+                st.error("Passwords do not match")
             else:
+                data = {
+                    "name": name,
+                    "email": email,
+                    "password": password,
+                    "phone": phone,
+                    "role": "citizen"
+                }
 
-                st.error(result["detail"])
+                response = requests.post(
+                    f"{API_URL}/register",
+                    json=data
+                )
+
+                result = response.json()
+
+                if response.status_code == 200:
+
+                    st.success(result["message"])
+                else:
+
+                    st.error(result["detail"])
 
     # OFFICER
     elif role == "officer":
@@ -200,33 +204,33 @@ if menu == "Register":
 
         address = st.text_input("Address")
 
-        if st.button("Register Authority"):
-
-            data = {
-                "name": name,
-                "email": email,
-                "password": password,
-                "nid": nid,
-                "dob": str(dob),
-                "address": address
-            }
-
-            response = requests.post(
-                f"{API_URL}/register-authority",
-                json=data
-            )
-
-            result = response.json()
-
-            if response.status_code == 200:
-
-                st.success(result["message"])
-
+        if st.button("Register Contractor"):
+            if password != confirm_password:
+                st.error("Passwords do not match")
             else:
+                data = {
+                    "name": name,
+                    "email": email,
+                    "password": password,
+                    "company": company,
+                    "license_no": license_no,
+                    "contact_info": contact_info
+                }
 
-                st.error(result["detail"])
+                response = requests.post(
+                    f"{API_URL}/register-contractor",
+                    json=data
+                )
 
-    # CONTRACTOR
+                result = response.json()
+
+                if response.status_code == 200:
+
+                    st.success(result["message"])
+
+                else:
+
+                    st.error(result["detail"])
     elif role == "contractor":
 
         company = st.text_input("Company Name")
@@ -760,64 +764,268 @@ elif st.session_state.role == "contractor":
     st.write("Welcome Contractor")
 
 elif st.session_state.role == "admin":
-
     st.subheader("Admin Dashboard")
 
-    st.write("Pending Approval Requests")
+    # System stats
+    try:
+        stats_resp = requests.get(f"{API_URL}/system-stats")
+        stats = stats_resp.json() if stats_resp.status_code == 200 else {}
+    except Exception:
+        stats = {}
 
-    response = requests.get(
-        f"{API_URL}/pending-users"
-    )
+    cols = st.columns(5)
+    cols[0].metric("Total Users", stats.get('total_users', 0))
+    cols[1].metric("Officers", stats.get('total_officers', 0))
+    cols[2].metric("Authorities", stats.get('total_authorities', 0))
+    cols[3].metric("Contractors", stats.get('total_contractors', 0))
+    cols[4].metric("Active Investigations", stats.get('total_active_investigations', 0))
 
-    users = response.json()
+    st.markdown("---")
 
-    for user in users:
+    # Pending officers
+    st.subheader("Pending Officers")
+    try:
+        po = requests.get(f"{API_URL}/pending-officers")
+        pending_officers = po.json() if po.status_code == 200 else []
+    except Exception:
+        pending_officers = []
 
-        st.write("---------------")
+    if not pending_officers:
+        st.info("No pending officers")
+    else:
+        for u in pending_officers:
+            with st.container():
+                st.markdown(f"**{u.get('name')}** — {u.get('email')}")
+                st.write(f"{u.get('designation')} — {u.get('area')}")
+                c1, c2 = st.columns([1,1])
+                with c1:
+                    if st.button("Approve", key=f"approve_off_{u.get('id')}"):
+                        try:
+                            # resolve admin_id mapped to current logged-in user
+                            am = requests.get(f"{API_URL}/admin-by-user/{st.session_state.user_id}")
+                            if am.status_code != 200:
+                                try:
+                                    err = am.json()
+                                    st.error(err.get('detail') or 'Admin mapping not found')
+                                except Exception:
+                                    st.error('Admin mapping not found')
+                                continue
+                            admin_id = am.json().get('admin_id')
+                            resp = requests.put(f"{API_URL}/approve-user/{u.get('id')}", json={"admin_id": admin_id})
+                            if resp.status_code == 200:
+                                st.success(resp.json().get('message'))
+                                st.rerun()
+                            else:
+                                st.error(resp.text)
+                        except Exception as e:
+                            st.error(f"Error: {e}")
+                with c2:
+                    if st.button("Reject", key=f"reject_off_{u.get('id')}"):
+                        try:
+                            am = requests.get(f"{API_URL}/admin-by-user/{st.session_state.user_id}")
+                            if am.status_code != 200:
+                                try:
+                                    err = am.json()
+                                    st.error(err.get('detail') or 'Admin mapping not found')
+                                except Exception:
+                                    st.error('Admin mapping not found')
+                                continue
+                            admin_id = am.json().get('admin_id')
+                            resp = requests.put(f"{API_URL}/reject-user/{u.get('id')}", json={"admin_id": admin_id})
+                            if resp.status_code == 200:
+                                st.success(resp.json().get('message'))
+                                st.rerun()
+                            else:
+                                st.error(resp.text)
+                        except Exception as e:
+                            st.error(f"Error: {e}")
 
-        st.write(f"ID: {user['id']}")
+    st.markdown("---")
 
-        st.write(f"Name: {user['name']}")
+    # Pending authorities
+    st.subheader("Pending Authorities")
+    try:
+        pa = requests.get(f"{API_URL}/pending-authorities")
+        pending_auth = pa.json() if pa.status_code == 200 else []
+    except Exception:
+        pending_auth = []
 
-        st.write(f"Email: {user['email']}")
+    if not pending_auth:
+        st.info("No pending authorities")
+    else:
+        for u in pending_auth:
+            with st.container():
+                st.markdown(f"**{u.get('name')}** — {u.get('email')}")
+                st.write(f"NID: {u.get('nid')} — {u.get('address')}")
+                c1, c2 = st.columns([1,1])
+                with c1:
+                    if st.button("Approve", key=f"approve_auth_{u.get('id')}"):
+                        try:
+                            am = requests.get(f"{API_URL}/admin-by-user/{st.session_state.user_id}")
+                            if am.status_code != 200:
+                                try:
+                                    err = am.json()
+                                    st.error(err.get('detail') or 'Admin mapping not found')
+                                except Exception:
+                                    st.error('Admin mapping not found')
+                                continue
+                            admin_id = am.json().get('admin_id')
+                            resp = requests.put(f"{API_URL}/approve-user/{u.get('id')}", json={"admin_id": admin_id})
+                            if resp.status_code == 200:
+                                st.success(resp.json().get('message'))
+                                st.rerun()
+                            else:
+                                st.error(resp.text)
+                        except Exception as e:
+                            st.error(f"Error: {e}")
+                with c2:
+                    if st.button("Reject", key=f"reject_auth_{u.get('id')}"):
+                        try:
+                            am = requests.get(f"{API_URL}/admin-by-user/{st.session_state.user_id}")
+                            if am.status_code != 200:
+                                try:
+                                    err = am.json()
+                                    st.error(err.get('detail') or 'Admin mapping not found')
+                                except Exception:
+                                    st.error('Admin mapping not found')
+                                continue
+                            admin_id = am.json().get('admin_id')
+                            resp = requests.put(f"{API_URL}/reject-user/{u.get('id')}", json={"admin_id": admin_id})
+                            if resp.status_code == 200:
+                                st.success(resp.json().get('message'))
+                                st.rerun()
+                            else:
+                                st.error(resp.text)
+                        except Exception as e:
+                            st.error(f"Error: {e}")
 
-        st.write(f"Role: {user['role']}")
+    st.markdown("---")
 
-        col1, col2 = st.columns(2)
+    # Pending contractors
+    st.subheader("Pending Contractors")
+    try:
+        pc = requests.get(f"{API_URL}/pending-contractors")
+        pending_cont = pc.json() if pc.status_code == 200 else []
+    except Exception:
+        pending_cont = []
 
-        # APPROVE
-        with col1:
+    if not pending_cont:
+        st.info("No pending contractors")
+    else:
+        for u in pending_cont:
+            with st.container():
+                st.markdown(f"**{u.get('name')}** — {u.get('email')}")
+                st.write(f"Company: {u.get('company')} — {u.get('contact_info')}")
+                c1, c2 = st.columns([1,1])
+                with c1:
+                    if st.button("Approve", key=f"approve_cont_{u.get('id')}"):
+                        try:
+                            am = requests.get(f"{API_URL}/admin-by-user/{st.session_state.user_id}")
+                            if am.status_code != 200:
+                                try:
+                                    err = am.json()
+                                    st.error(err.get('detail') or 'Admin mapping not found')
+                                except Exception:
+                                    st.error('Admin mapping not found')
+                                continue
+                            admin_id = am.json().get('admin_id')
+                            resp = requests.put(f"{API_URL}/approve-user/{u.get('id')}", json={"admin_id": admin_id})
+                            if resp.status_code == 200:
+                                st.success(resp.json().get('message'))
+                                st.rerun()
+                            else:
+                                st.error(resp.text)
+                        except Exception as e:
+                            st.error(f"Error: {e}")
+                with c2:
+                    if st.button("Reject", key=f"reject_cont_{u.get('id')}"):
+                        try:
+                            am = requests.get(f"{API_URL}/admin-by-user/{st.session_state.user_id}")
+                            if am.status_code != 200:
+                                try:
+                                    err = am.json()
+                                    st.error(err.get('detail') or 'Admin mapping not found')
+                                except Exception:
+                                    st.error('Admin mapping not found')
+                                continue
+                            admin_id = am.json().get('admin_id')
+                            resp = requests.put(f"{API_URL}/reject-user/{u.get('id')}", json={"admin_id": admin_id})
+                            if resp.status_code == 200:
+                                st.success(resp.json().get('message'))
+                                st.rerun()
+                            else:
+                                st.error(resp.text)
+                        except Exception as e:
+                            st.error(f"Error: {e}")
 
-            if st.button(
-                f"Approve {user['id']}"
-            ):
+    st.markdown("---")
 
-                approve_response = requests.put(
-                    f"{API_URL}/approve-user/{user['id']}"
-                )
+    # Recent Audit Logs
+    st.subheader("Recent Audit Logs")
+    try:
+        al = requests.get(f"{API_URL}/audit-logs")
+        audit_logs = al.json() if al.status_code == 200 else []
+    except Exception:
+        audit_logs = []
 
-                st.success(
-                    approve_response.json()["message"]
-                )
+    if not audit_logs:
+        st.info("No audit logs found")
+    else:
+        for a in audit_logs:
+            st.write(f"- {a.get('timestamp')} — {a.get('action')}")
 
-                st.rerun()
+elif menu == "Admin Register":
 
-        # REJECT
-        with col2:
+    st.subheader("Admin Register")
 
-            if st.button(
-                f"Reject {user['id']}"
-            ):
+    invitation_code = st.text_input("Invitation Code")
+    name = st.text_input("Name")
+    email = st.text_input("Email")
+    phone = st.text_input("Phone")
+    password = st.text_input("Password", type="password")
+    confirm_password_admin = st.text_input("Confirm Password", type="password")
 
-                reject_response = requests.put(
-                    f"{API_URL}/reject-user/{user['id']}"
-                )
+    if st.button("Register Admin"):
+        if password != confirm_password_admin:
+            st.error("Passwords do not match")
+        else:
+            data = {
+                "invitation_code": invitation_code,
+                "name": name,
+                "email": email,
+                "phone": phone,
+                "password": password
+            }
+        try:
+            resp = requests.post(f"{API_URL}/register-admin", json=data)
+            try:
+                j = resp.json()
+            except Exception:
+                j = {"message": resp.text}
 
-                st.error(
-                    reject_response.json()["message"]
-                )
+            if resp.status_code == 200 and j.get('message') == 'Admin Registered Successfully':
+                st.success("Admin Registered Successfully — logging in...")
+                # attempt immediate login
+                login_payload = {"email": email, "password": password}
+                lr = requests.post(f"{API_URL}/login", json=login_payload)
+                try:
+                    lj = lr.json()
+                except Exception:
+                    lj = {}
 
-                st.rerun()
+                if lr.status_code == 200:
+                    st.session_state.token = lj.get('access_token')
+                    st.session_state.role = lj.get('role')
+                    st.session_state.user_id = int(lj.get('user_id'))
+                    st.success("Logged in as admin")
+                    st.rerun()
+                else:
+                    st.info("Registration succeeded but auto-login failed; please login manually.")
+            else:
+                # show error message from backend
+                st.error(j.get('message') or j.get('detail') or resp.text)
+        except Exception as e:
+            st.error(f"Error: {e}")
 
     
 

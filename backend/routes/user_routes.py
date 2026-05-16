@@ -245,6 +245,7 @@ def get_pending_users(
 @router.put("/approve-user/{user_id}")
 def approve_user(
     user_id: int,
+    payload: dict = None,
     db: Session = Depends(get_db)
 ):
 
@@ -270,7 +271,9 @@ def approve_user(
 
         if officer:
 
-            officer.created_by_admin_id = 1
+            # try to use provided admin id, fall back to 1
+            admin_id = payload.get('admin_id') if payload else 1
+            officer.created_by_admin_id = admin_id
 
     # AUTHORITY
     elif user.role == "authority":
@@ -281,7 +284,8 @@ def approve_user(
 
         if authority:
 
-            authority.created_by_admin_id = 1
+            admin_id = payload.get('admin_id') if payload else 1
+            authority.created_by_admin_id = admin_id
 
     # CONTRACTOR
     elif user.role == "contractor":
@@ -292,9 +296,24 @@ def approve_user(
 
         if contractor:
 
-            contractor.created_by_admin_id = 1
+            admin_id = payload.get('admin_id') if payload else 1
+            contractor.created_by_admin_id = admin_id
+
+    # create audit log entry
+    try:
+        from models.audit_log_model import AuditLog
+
+        admin_id = payload.get('admin_id') if payload else 1
+        print("CREATING AUDIT LOG")
+        audit_log = AuditLog(user_id=admin_id, action=f"Approved {user.role} user {user_id}")
+        print(audit_log.user_id)
+        print(audit_log.action)
+        db.add(audit_log)
+    except Exception as e:
+        print("Failed to create audit log", e)
 
     db.commit()
+    print("AUDIT LOG SAVED")
 
     return {
         "message": "User Approved Successfully"
@@ -304,6 +323,7 @@ def approve_user(
 @router.put("/reject-user/{user_id}")
 def reject_user(
     user_id: int,
+    payload: dict = None,
     db: Session = Depends(get_db)
 ):
 
@@ -320,7 +340,21 @@ def reject_user(
 
     user.is_rejected = True
 
+    # create audit log entry
+    try:
+        from models.audit_log_model import AuditLog
+
+        admin_id = payload.get('admin_id') if payload else 1
+        print("CREATING AUDIT LOG")
+        audit_log = AuditLog(user_id=admin_id, action=f"Rejected {user.role} user {user_id}")
+        print(audit_log.user_id)
+        print(audit_log.action)
+        db.add(audit_log)
+    except Exception as e:
+        print("Failed to create audit log", e)
+
     db.commit()
+    print("AUDIT LOG SAVED")
 
     return {
         "message": "User Rejected"
