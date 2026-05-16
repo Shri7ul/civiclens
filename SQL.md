@@ -699,3 +699,28 @@ FOREIGN KEY (officer_id)
 REFERENCES officers(id)
 ON DELETE CASCADE;
 ```
+```sql id="39aj8v"
+ALTER TABLE case_documents
+CHANGE request_id police_request_id INT;
+
+ALTER TABLE case_documents
+CHANGE file_url file_path VARCHAR(500);
+
+ALTER TABLE case_documents
+ADD COLUMN officer_id INT;
+
+ALTER TABLE case_documents
+ADD COLUMN file_name VARCHAR(255);
+
+ALTER TABLE case_documents
+ADD CONSTRAINT fk_case_documents_request
+FOREIGN KEY (police_request_id)
+REFERENCES police_requests(id)
+ON DELETE CASCADE;
+
+ALTER TABLE case_documents
+ADD CONSTRAINT fk_case_documents_officer
+FOREIGN KEY (officer_id)
+REFERENCES officers(id)
+ON DELETE CASCADE;
+```

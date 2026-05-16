@@ -1,6 +1,7 @@
 import streamlit as st
 import requests
 from datetime import date
+import os
 
 API_URL = "http://127.0.0.1:8000"
 
@@ -8,6 +9,67 @@ st.set_page_config(
     page_title="CivicLens",
     layout="wide"
 )
+
+
+# Helpers
+def fetch_case_documents(police_request_id):
+    try:
+        r = requests.get(f"{API_URL}/case-documents/{police_request_id}")
+        if r.status_code == 200:
+            return r.json()
+    except Exception:
+        return []
+    return []
+
+
+def render_documents_section(police_request_id):
+    docs = fetch_case_documents(police_request_id)
+    if not docs:
+        st.info("No documents uploaded for this case yet")
+        return
+
+    for d in docs:
+        file_name = d.get('file_name')
+        file_path = d.get('file_path')
+        uploaded_at = d.get('uploaded_at')
+
+        st.write(f"**{file_name}** — {uploaded_at}")
+
+        # attempt to resolve full path on the same host (common dev setup)
+        full_path = file_path or ""
+        if full_path and not os.path.isabs(full_path):
+            full_path = os.path.abspath(full_path)
+
+        _, ext = os.path.splitext(file_name or "")
+        ext = ext.lower()
+
+        try:
+            if ext in ['.png', '.jpg', '.jpeg', '.gif', '.webp'] and os.path.exists(full_path):
+                with open(full_path, 'rb') as fh:
+                    img_bytes = fh.read()
+                st.image(img_bytes, caption=file_name)
+                if st.button("View Document", key=f"view_doc_{d.get('id')}"):
+                    st.download_button("Download Image", data=img_bytes, file_name=file_name)
+            elif ext == '.pdf' and os.path.exists(full_path):
+                with open(full_path, 'rb') as fh:
+                    pdf_bytes = fh.read()
+                if st.button("View Document", key=f"view_doc_{d.get('id')}"):
+                    st.download_button("Open / Download PDF", data=pdf_bytes, file_name=file_name)
+            else:
+                # fallback: provide download via fetching from backend if possible
+                if st.button("View Document", key=f"view_doc_{d.get('id')}"):
+                    try:
+                        # try to fetch file bytes via direct HTTP if backend serves them
+                        file_resp = requests.get(f"{API_URL}/{file_path}")
+                        if file_resp.status_code == 200:
+                            st.download_button("Download File", data=file_resp.content, file_name=file_name)
+                        else:
+                            st.write("Unable to preview/download file from server")
+                    except Exception:
+                        st.write("Unable to preview/download file")
+        except Exception:
+            st.write("Error rendering document")
+
 
 # SESSION
 if "token" not in st.session_state:
@@ -452,6 +514,10 @@ if st.session_state.role == "citizen":
                                 except Exception as e:
                                     st.error(f"Error fetching timeline: {e}")
 
+                            st.markdown("---")
+                            st.subheader("Case Documents / Evidence")
+                            render_documents_section(req.get('id'))
+
 elif st.session_state.role == "officer":
 
     st.subheader("Officer Dashboard")
@@ -516,6 +582,34 @@ elif st.session_state.role == "officer":
                         with st.expander("Timeline / Updates", expanded=False):
                             for upd in cached:
                                 st.write(f"- {upd.get('updated_at')} — {upd.get('note') or upd.get('update_message')} ({upd.get('status') or upd.get('case_status')})")
+
+                    st.markdown("---")
+                    st.write("**Upload Evidence**")
+                    upload_file = st.file_uploader("Select file to upload", key=f"upload_file_{case.get('id')}")
+                    if upload_file is not None:
+                        if st.button("Upload Evidence", key=f"upload_btn_{case.get('id')}"):
+                            try:
+                                files = {
+                                    'file': (upload_file.name, upload_file.getvalue(), upload_file.type or 'application/octet-stream')
+                                }
+                                data = {
+                                    'police_request_id': case.get('id'),
+                                    'officer_id': officer_id
+                                }
+                                with st.spinner("Uploading..."):
+                                    resp = requests.post(f"{API_URL}/upload-case-document", data=data, files=files)
+                                try:
+                                    j = resp.json()
+                                except Exception:
+                                    j = {"message": resp.text}
+
+                                if resp.status_code == 200:
+                                    st.success(j.get('message') or 'Upload successful')
+                                    st.rerun()
+                                else:
+                                    st.error(j.get('detail') or j.get('message') or resp.text)
+                            except Exception as e:
+                                st.error(f"Error uploading file: {e}")
 
     st.markdown("---")
     st.subheader("Add Case Update")

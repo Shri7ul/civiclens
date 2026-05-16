@@ -38,6 +38,12 @@ from routes.crime_assignment_routes import (
 from routes.case_update_routes import (
     router as case_update_router
 )
+from routes.case_document_routes import (
+    router as case_document_router
+)
+from routes.admin_routes import (
+    router as admin_router
+)
 
 from models.user_profile_model import (
     UserProfile
@@ -69,6 +75,8 @@ app.include_router(
 )
 app.include_router(crime_assignment_router)
 app.include_router(case_update_router)
+app.include_router(case_document_router)
+app.include_router(admin_router)
 
 @app.get("/")
 def home():
