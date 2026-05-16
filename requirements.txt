@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+sqlalchemy
+pymysql
+streamlit
+requests
+pandas
+passlib
+bcrypt==4.0.1
+python-jose[cryptography]
+email-validator
