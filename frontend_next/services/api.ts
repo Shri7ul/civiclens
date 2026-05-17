@@ -54,4 +54,12 @@ export async function getMyPoliceRequests(user_id: number){
   try{const res = await api.get(`/my-police-requests/${user_id}`); return res.data}catch(e){return handleError(e)}
 }
 
+export async function addPoliceRequest(payload: { user_id: number; category: string; request_type: string; description: string }){
+  try{const res = await api.post('/add-police-request', payload); return res.data}catch(e){return handleError(e)}
+}
+
+export async function getCaseUpdates(police_request_id: number){
+  try{const res = await api.get(`/case-updates/${police_request_id}`); return res.data}catch(e){return handleError(e)}
+}
+
 export default api

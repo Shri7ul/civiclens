@@ -4,26 +4,42 @@ import StatCard from '../../../components/StatCard'
 import Timeline from '../../../components/Timeline'
 import RequestsList from '../../../components/RequestsList'
 import SkeletonCard from '../../../components/SkeletonCard'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { getMyPoliceRequests } from '../../../services/api'
+import SubmitGDForm from '../../../components/SubmitGDForm'
 import { Clock, CheckCircle, AlertTriangle, Activity } from 'lucide-react'
 
 export default function CitizenDashboard(){
   const [requests, setRequests] = useState<any[] | null>(null)
   const [loading, setLoading] = useState(true)
+  const [userId, setUserId] = useState<number | null>(null)
 
   useEffect(()=>{
-    try{
-      const s = localStorage.getItem('civiclens_user')
-      const user = s ? JSON.parse(s) : null
-      if (user?.user_id){
-        getMyPoliceRequests(user.user_id).then(data=>{
+    // read user from localStorage only on client-side
+    const s = typeof window !== 'undefined' ? localStorage.getItem('civiclens_user') : null
+    const user = s ? JSON.parse(s) : null
+    setUserId(user?.user_id ?? null)
+
+    const fetch = async (uid: number | null)=>{
+      try{
+        if (uid){
+          const data = await getMyPoliceRequests(uid)
           setRequests(data)
-          setLoading(false)
-        }).catch(e=>{console.error(e); setRequests([]); setLoading(false)})
-      }else{setRequests([]); setLoading(false)}
-    }catch(e){setRequests([]); setLoading(false)}
+        }else{
+          setRequests([])
+        }
+      }catch(e){setRequests([])}
+      finally{setLoading(false)}
+    }
+    fetch(user?.user_id ?? null)
   },[])
+
+  const refresh = useCallback(()=>{
+    setLoading(true)
+    if (userId){
+      getMyPoliceRequests(userId).then(data=>{setRequests(data); setLoading(false)}).catch(()=>{setRequests([]); setLoading(false)})
+    }else{setRequests([]); setLoading(false)}
+  },[userId])
 
   const total = requests ? requests.length : 0
   const active = requests ? requests.filter(r=>r.status && r.status.toLowerCase() !== 'resolved').length : 0
@@ -61,9 +77,17 @@ export default function CitizenDashboard(){
           </div>
 
           <div>
-            <div className="card p-6">
-              <h3 className="text-lg font-semibold mb-4">Timeline</h3>
-              {loading ? <SkeletonCard/> : <Timeline items={(requests||[]).slice(0,6).map(r=>({ id: r.id, title: r.category + ' • ' + r.request_type, time: r.created_at, status: r.status }))} />}
+            <div className="space-y-6">
+              {userId ? (
+                <SubmitGDForm userId={userId} onSuccess={refresh} />
+              ) : (
+                <div className="card p-4 text-sm text-slate-400">Login to submit a GD</div>
+              )}
+
+              <div className="card p-6">
+                <h3 className="text-lg font-semibold mb-4">Timeline</h3>
+                {loading ? <SkeletonCard/> : <Timeline items={(requests||[]).slice(0,6).map(r=>({ id: r.id, title: r.category + ' • ' + r.request_type, time: r.created_at, status: r.status }))} />}
+              </div>
             </div>
           </div>
         </div>
