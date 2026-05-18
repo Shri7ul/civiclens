@@ -2,12 +2,14 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Aperture, Bell, LogOut, Menu, Moon, Search, Sun } from "lucide-react";
+import { Aperture, Bell, LogOut, Menu, Moon, Search, Sun, LockKeyhole } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { toast } from "sonner";
 import { roleNavigation } from "@/lib/rbac";
+import { useApiQuery } from "@/hooks/use-api-query";
+import { verificationService } from "@/services/verification.service";
 import type { UserRole } from "@/types/auth";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -17,8 +19,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 function Sidebar({ role, onNavigate }: { role: UserRole; onNavigate?: () => void }) {
   const pathname = usePathname();
   const items = roleNavigation[role];
+  const { session } = useAuth();
+  const router = useRouter();
+  const verificationQuery = useApiQuery(() => (session ? verificationService.getStatus(session.user_id) : Promise.resolve(null)), [session?.user_id]);
   return (
-    <aside className="flex h-full flex-col gap-8 p-5">
+    <aside className="flex h-full flex-col gap-6 p-5">
       <Link href="/" className="flex items-center gap-3" onClick={onNavigate}>
         <span className="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-cyan-400 via-blue-500 to-lime-300 text-white shadow-glow">
           <Aperture className="h-6 w-6" />
@@ -29,22 +34,47 @@ function Sidebar({ role, onNavigate }: { role: UserRole; onNavigate?: () => void
         </span>
       </Link>
       <nav className="flex flex-1 flex-col gap-2">
-        {items.map(({ title, href, icon: Icon }) => (
-          <Link
-            key={href}
-            href={href}
-            onClick={onNavigate}
-            className={cn(
-              "flex items-center gap-3 rounded-2xl px-3.5 py-3 text-sm font-semibold transition",
-              pathname === href
-                ? "bg-slate-950 text-white shadow-glow dark:bg-white dark:text-slate-950"
-                : "text-slate-600 hover:bg-slate-900/5 hover:text-slate-950 dark:text-slate-300 dark:hover:bg-white/10 dark:hover:text-white",
-            )}
-          >
-            <Icon className="h-5 w-5" />
-            {title}
-          </Link>
-        ))}
+        {items.map(({ title, href, icon: Icon }) => {
+          const isSubmit = role === "citizen" && href === "/citizen/submit-police-request";
+          const locked = isSubmit && !(verificationQuery.data?.verification_completed);
+
+          if (locked) {
+            return (
+              <div
+                key={href}
+                onClick={() => router.push("/citizen/dashboard")}
+                title="Complete verification to unlock"
+                className={cn(
+                  "flex items-center gap-3 rounded-2xl px-3.5 py-3 text-sm font-semibold transition opacity-60 cursor-pointer",
+                  pathname === href
+                    ? "bg-slate-950 text-white shadow-glow dark:bg-white dark:text-slate-950"
+                    : "text-slate-600 hover:bg-slate-900/5 hover:text-slate-950 dark:text-slate-300 dark:hover:bg-white/10 dark:hover:text-white",
+                )}
+              >
+                <Icon className="h-5 w-5" />
+                <span>{title}</span>
+                <LockKeyhole className="ml-auto h-4 w-4 text-rose-500" />
+              </div>
+            );
+          }
+
+          return (
+            <Link
+              key={href}
+              href={href}
+              onClick={onNavigate}
+              className={cn(
+                "flex items-center gap-3 rounded-2xl px-3.5 py-3 text-sm font-semibold transition",
+                pathname === href
+                  ? "bg-slate-950 text-white shadow-glow dark:bg-white dark:text-slate-950"
+                  : "text-slate-600 hover:bg-slate-900/5 hover:text-slate-950 dark:text-slate-300 dark:hover:bg-white/10 dark:hover:text-white",
+              )}
+            >
+              <Icon className="h-5 w-5" />
+              {title}
+            </Link>
+          );
+        })}
       </nav>
     </aside>
   );

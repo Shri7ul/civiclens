@@ -7,6 +7,11 @@ export const verificationService = {
   verifyNid(payload: { user_id: number; nid: string; dob: string; address?: string }) {
     return api.post("/verify-nid", payload).then((res) => res.data);
   },
+  uploadNidImage(formData: FormData) {
+    return api.post("/upload-nid-image", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    }).then((res) => res.data);
+  },
   getStatus(userId: number) {
     return api.get(`/verification-status/${userId}`).then((res) => res.data);
   },

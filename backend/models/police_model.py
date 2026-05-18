@@ -30,3 +30,5 @@ class PoliceRequest(Base):
     description = Column(Text)
 
     status = Column(String(50))
+    
+    area = Column(String(100))

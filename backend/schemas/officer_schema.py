@@ -16,3 +16,5 @@ class OfficerRegister(BaseModel):
     address: str
 
     area: str
+    
+    specialization: str | None = None

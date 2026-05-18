@@ -29,5 +29,7 @@ class Officer(Base):
     address = Column(String(255))
 
     area = Column(String(100))
+    
+    specialization = Column(String(200))
 
     created_by_admin_id = Column(Integer)

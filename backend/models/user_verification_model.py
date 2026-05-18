@@ -27,6 +27,8 @@ class UserVerification(Base):
 
     dob = Column(String(100))
 
+    
+
     otp_code = Column(String(10))
 
     phone_verified = Column(

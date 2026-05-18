@@ -8,7 +8,8 @@ export const caseService = {
   assignCase(payload: { police_request_id: number; officer_id: number }) {
     return api.post("/assign-case", payload).then((res) => res.data);
   },
-  addCaseUpdate(payload: { police_request_id: number; update_text: string; status?: string }) {
+  // backend expects { police_request_id, officer_id, update_message, case_status }
+  addCaseUpdate(payload: { police_request_id: number; officer_id: number; update_message: string; case_status: string }) {
     return api.post("/add-case-update", payload).then((res) => res.data);
   },
   caseUpdates(policeRequestId: number) {

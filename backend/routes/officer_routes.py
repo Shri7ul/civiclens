@@ -65,6 +65,10 @@ def register_officer(
         area=officer.area
     )
 
+    # optional specialization
+    if hasattr(officer, 'specialization') and officer.specialization:
+        new_officer.specialization = officer.specialization
+
     db.add(new_officer)
 
     db.commit()

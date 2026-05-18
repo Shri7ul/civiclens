@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -53,32 +54,53 @@ export function OtpVerificationForm() {
 
 export function NidVerificationForm() {
   const { session } = useAuth();
-  const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<{ nid: string; dob: string; address?: string }>();
-  async function onSubmit(values: { nid: string; dob: string; address?: string }) {
+  const [file, setFile] = React.useState<File | null>(null);
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+
+  async function onSubmit(e: React.FormEvent) {
+    e.preventDefault();
     if (!session) return;
+    if (!file) {
+      toast.error("Please choose an NID image to upload.");
+      return;
+    }
+
+    const form = new FormData();
+    form.append("user_id", String(session.user_id));
+    form.append("file", file);
 
     try {
-      await verificationService.verifyNid({ user_id: session.user_id, nid: values.nid, dob: values.dob, address: values.address ?? "" });
-      toast.success("NID submitted for verification");
-      reset();
+      setIsSubmitting(true);
+      const res = await verificationService.uploadNidImage(form);
+      if (res && res.message) {
+        if (res.extracted && res.extracted.nid && res.extracted.dob) {
+          toast.success("NID extracted and account verified");
+        } else {
+          toast.error(res.message || "OCR parsing incomplete. Please try a clearer image.");
+        }
+      }
     } catch (error) {
-      toast.error(getErrorMessage(error, "Could not submit NID verification."));
+      toast.error(getErrorMessage(error, "Could not upload NID image."));
+    } finally {
+      setIsSubmitting(false);
+      setFile(null);
     }
   }
 
   return (
     <Card>
-      <CardHeader><CardTitle>NID Verification</CardTitle></CardHeader>
+      <CardHeader><CardTitle>Upload NID Image</CardTitle></CardHeader>
       <CardContent>
-        <form className="grid gap-3 sm:grid-cols-[1fr_auto]" onSubmit={handleSubmit(onSubmit)}>
+        <form className="grid gap-3 sm:grid-cols-[1fr_auto]" onSubmit={onSubmit}>
           <div className="grid gap-2">
-            <Input placeholder="Enter NID number" {...register("nid", { required: true })} />
-            {errors.nid && <p className="mt-1 text-sm text-rose-500">NID number is required.</p>}
-            <Input placeholder="Date of birth (YYYY-MM-DD)" {...register("dob", { required: true })} />
-            {errors.dob && <p className="mt-1 text-sm text-rose-500">DOB is required.</p>}
-            <Input placeholder="Address (optional)" {...register("address")} />
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(ev) => setFile(ev.target.files ? ev.target.files[0] : null)}
+            />
+            <p className="text-sm text-muted-foreground">Upload front-side of your NID card (clear photo).</p>
           </div>
-          <Button disabled={isSubmitting}>{isSubmitting ? "Verifying..." : "Verify"}</Button>
+          <Button disabled={isSubmitting}>{isSubmitting ? "Uploading..." : "Upload & Verify"}</Button>
         </form>
       </CardContent>
     </Card>

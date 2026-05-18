@@ -56,7 +56,7 @@ export function RoleDashboard({ title, description, adminStats = false }: { titl
           <Card>
             <CardHeader><CardTitle>Recent activity</CardTitle></CardHeader>
             <CardContent>
-              <ActivityTimeline />
+              <ActivityTimeline {...(adminStats ? { includeActions: ["Approved", "Rejected"] } : {})} />
             </CardContent>
           </Card>
         </div>
