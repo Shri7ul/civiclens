@@ -192,11 +192,13 @@ def get_all_officers(
             PoliceRequest.status != 'Closed'
         ).count()
 
-        # resolved: closed or archived
-        resolved_count = db.query(CrimeAssignment).join(PoliceRequest, CrimeAssignment.police_request_id == PoliceRequest.id).filter(
-            CrimeAssignment.officer_id == officer.id,
-            ((PoliceRequest.status == 'Closed') | (PoliceRequest.is_archived == True))
-        ).count()
+        # resolved: prefer stored officer.resolved_cases if available, else compute from assignments
+        resolved_count = getattr(officer, 'resolved_cases', None)
+        if resolved_count is None:
+            resolved_count = db.query(CrimeAssignment).join(PoliceRequest, CrimeAssignment.police_request_id == PoliceRequest.id).filter(
+                CrimeAssignment.officer_id == officer.id,
+                ((PoliceRequest.status == 'Closed') | (PoliceRequest.is_archived == True))
+            ).count()
 
         out.append({
             "id": officer.id,

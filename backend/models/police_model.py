@@ -38,3 +38,4 @@ class PoliceRequest(Base):
     resolved_at = Column(DateTime, nullable=True)
     
     area = Column(String(100))
+    location = Column(String(255))

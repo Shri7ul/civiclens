@@ -9,5 +9,7 @@ class PoliceRequestCreate(BaseModel):
     request_type: str
 
     description: str
-    
+
     area: str | None = None
+
+    location: str | None = None

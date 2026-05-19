@@ -17,6 +17,12 @@ checks = [
     ,
     {
         'table': 'police_requests',
+        'column': 'location',
+        'ddl': "ALTER TABLE police_requests ADD COLUMN location VARCHAR(255) NULL"
+    }
+    ,
+    {
+        'table': 'police_requests',
         'column': 'citizen_confirmation_pending',
         'ddl': "ALTER TABLE police_requests ADD COLUMN citizen_confirmation_pending BOOLEAN DEFAULT FALSE"
     },
@@ -34,6 +40,12 @@ checks = [
         'table': 'officers',
         'column': 'resolved_cases',
         'ddl': "ALTER TABLE officers ADD COLUMN resolved_cases INT DEFAULT 0"
+    }
+,
+    {
+        'table': 'public_cases',
+        'column': 'title',
+        'ddl': "CREATE TABLE public_cases (\n            id INT AUTO_INCREMENT PRIMARY KEY,\n            title VARCHAR(255),\n            description TEXT,\n            area VARCHAR(100),\n            status VARCHAR(100),\n            source_name VARCHAR(255),\n            source_url VARCHAR(512),\n            assigned_officer_id INT NULL,\n            created_by_admin_id INT NULL,\n            is_featured BOOLEAN DEFAULT FALSE,\n            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,\n            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP\n        )"
     }
 ]
 

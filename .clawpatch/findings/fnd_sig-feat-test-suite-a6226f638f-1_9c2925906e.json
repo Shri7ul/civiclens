@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "findingId": "fnd_sig-feat-test-suite-a6226f638f-1_9c2925906e",
+  "featureId": "feat_test-suite_a6226f638f",
+  "title": "Smoke test mutates live application state without isolation or verification",
+  "category": "data-loss",
+  "severity": "medium",
+  "confidence": "high",
+  "triage": "confirmed-bug",
+  "evidence": [
+    {
+      "path": "smoke_test.py",
+      "startLine": 6,
+      "endLine": 7,
+      "symbol": null,
+      "quote": "PORT = int(os.environ.get('SMOKE_PORT', '8001'))\nbase=f'http://127.0.0.1:{PORT}'"
+    },
+    {
+      "path": "smoke_test.py",
+      "startLine": 35,
+      "endLine": 45,
+      "symbol": null,
+      "quote": "pid = un[0].get('id') or un[0].get('police_request_id')\n        area = un[0].get('area')\n        print('\\nSelected police_request id:', pid, 'area:', area)\n        candidate = None\n        for o in off:\n            if (o.get('area') or '').lower() == (area or '').lower():\n                candidate = o\n                break\n        if not candidate and off:\n            candidate = off[0]\n            print('No same-area officer found; picking first available officer (for test only)')"
+    },
+    {
+      "path": "smoke_test.py",
+      "startLine": 49,
+      "endLine": 52,
+      "symbol": null,
+      "quote": "r = requests.post(base+'/assign-case', json={'police_request_id': pid, 'officer_id': candidate.get('id'), 'assigned_by_authority_id': 1}, timeout=5)\n                print('\\n== POST /assign-case status', r.status_code)\n                print(r.text)\n            except Exception as e:"
+    }
+  ],
+  "reasoning": "The smoke test selects the first unassigned police request from the running service and posts an assignment to a real localhost endpoint, including a fallback that assigns the case to the first available officer even when the area does not match. There is no fixture data, cleanup, transaction rollback, or assertion that the target service is a disposable test instance. Running this against a developer or shared database can permanently change case assignments and make subsequent tests or manual workflows observe corrupted state.",
+  "reproduction": "Start the application against a database containing at least one unassigned request and one officer, then run smoke_test.py directly. The script posts to /assign-case for the first request it finds and does not undo the assignment.",
+  "recommendation": "Make smoke tests operate only on isolated test data. Create a request and officer inside the test setup, assign only that fixture request, assert the response and resulting state, and clean up afterward. Add an explicit TESTING/SMOKE_ALLOW_MUTATION guard or require a dedicated test database/base URL before performing POST requests.",
+  "whyTestsDoNotAlreadyCoverThis": "The smoke test performs the mutation itself and only prints the response; it has no cleanup or assertions that would detect accidental mutation of non-test data.",
+  "suggestedRegressionTest": "Add a pytest smoke test using a dedicated test database or mocked API where the test creates its own unassigned request, assigns it, verifies the assignment, and tears down the created records.",
+  "minimumFixScope": "Restrict smoke_test.py mutations to isolated fixture records and add setup, assertions, and cleanup around /assign-case.",
+  "status": "open",
+  "history": [],
+  "signature": "sig_feat-test-suite-a6226f638f_1cb46e75df",
+  "linkedPatchAttemptIds": [],
+  "createdByRunId": "20260519T120311-cad270",
+  "createdAt": "2026-05-19T12:03:50.762Z",
+  "updatedAt": "2026-05-19T12:03:50.762Z"
+}

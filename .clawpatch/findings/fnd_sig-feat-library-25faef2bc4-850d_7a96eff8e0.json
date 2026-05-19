@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "findingId": "fnd_sig-feat-library-25faef2bc4-850d_7a96eff8e0",
+  "featureId": "feat_library_25faef2bc4",
+  "title": "OCR resize overwrites the input image in place",
+  "category": "data-loss",
+  "severity": "medium",
+  "confidence": "high",
+  "triage": "confirmed-bug",
+  "evidence": [
+    {
+      "path": "ocr_test_run.py",
+      "startLine": 19,
+      "endLine": 23,
+      "symbol": "resize_if_needed",
+      "quote": "if max_side > max_dim:\n        scale = max_dim / float(max_side)\n        new_size = (int(img.size[0]*scale), int(img.size[1]*scale))\n        img = img.resize(new_size, Image.LANCZOS)\n        img.save(path)"
+    }
+  ],
+  "reasoning": "Running the OCR helper on any image larger than max_dim permanently rewrites the original file at the same path with a downscaled version. A test/debug utility should not destroy the caller's source image, especially because this happens before OCR and there is no backup or explicit confirmation.",
+  "reproduction": "Run `python ocr_test_run.py high_resolution_image.jpg` with an image whose largest side is greater than 1600 pixels; the original file is replaced by a smaller image before OCR runs.",
+  "recommendation": "Write the resized image to a temporary file or in-memory object and pass that to OCR, or require an explicit output path before modifying files.",
+  "whyTestsDoNotAlreadyCoverThis": "No linked tests are included for this feature, and there is no assertion that source image dimensions or bytes remain unchanged after `resize_if_needed`.",
+  "suggestedRegressionTest": "Create a temporary large image, call `resize_if_needed`, and assert that the original path is not overwritten unless an explicit overwrite option is passed.",
+  "minimumFixScope": "Change `resize_if_needed` and the CLI flow in `ocr_test_run.py` so resizing does not save back to the input path by default.",
+  "status": "open",
+  "history": [],
+  "signature": "sig_feat-library-25faef2bc4_850dcdddf4",
+  "linkedPatchAttemptIds": [],
+  "createdByRunId": "20260519T120311-cad270",
+  "createdAt": "2026-05-19T12:04:06.519Z",
+  "updatedAt": "2026-05-19T12:04:06.519Z"
+}

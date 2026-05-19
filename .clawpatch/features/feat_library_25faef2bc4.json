@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 1,
+  "featureId": "feat_library_25faef2bc4",
+  "title": "Python source root",
+  "summary": "Python source group root with 2 files.",
+  "kind": "library",
+  "source": "python-source-group",
+  "confidence": "medium",
+  "entrypoints": [
+    {
+      "path": "root",
+      "symbol": "root",
+      "route": null,
+      "command": null
+    }
+  ],
+  "ownedFiles": [
+    {
+      "path": "ocr_test_run.py",
+      "reason": "source group root"
+    },
+    {
+      "path": "template.py",
+      "reason": "source group root"
+    }
+  ],
+  "contextFiles": [],
+  "tests": [],
+  "tags": [
+    "python",
+    "source-group"
+  ],
+  "trustBoundaries": [],
+  "status": "needs-fix",
+  "lock": null,
+  "findingIds": [
+    "fnd_sig-feat-library-25faef2bc4-850d_7a96eff8e0",
+    "fnd_sig-feat-library-25faef2bc4-2f0b_9dd13b0590",
+    "fnd_sig-feat-library-25faef2bc4-4aa5_35e827b614"
+  ],
+  "patchAttemptIds": [],
+  "analysisHistory": [
+    {
+      "runId": "20260519T120024-3d6a48",
+      "kind": "review-error",
+      "summary": "codex provider failed: spawn codex ENOENT",
+      "provider": "codex",
+      "model": null,
+      "reasoningEffort": null,
+      "createdAt": "2026-05-19T12:00:24.806Z"
+    },
+    {
+      "runId": "20260519T120108-8113b6",
+      "kind": "review-error",
+      "summary": "codex provider failed: spawn codex ENOENT",
+      "provider": "codex",
+      "model": null,
+      "reasoningEffort": null,
+      "createdAt": "2026-05-19T12:01:08.659Z"
+    },
+    {
+      "runId": "20260519T120311-cad270",
+      "kind": "review",
+      "summary": "3 finding(s)",
+      "provider": "codex",
+      "model": null,
+      "reasoningEffort": null,
+      "createdAt": "2026-05-19T12:04:06.522Z"
+    }
+  ],
+  "createdAt": "2026-05-19T12:00:05.444Z",
+  "updatedAt": "2026-05-19T12:04:06.522Z"
+}

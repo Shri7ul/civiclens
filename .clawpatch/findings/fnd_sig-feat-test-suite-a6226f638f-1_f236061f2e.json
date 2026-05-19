@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "findingId": "fnd_sig-feat-test-suite-a6226f638f-1_f236061f2e",
+  "featureId": "feat_test-suite_a6226f638f",
+  "title": "Pytest suite contains no executable assertions",
+  "category": "test-gap",
+  "severity": "high",
+  "confidence": "high",
+  "triage": "test-gap",
+  "evidence": [
+    {
+      "path": "smoke_test.py",
+      "startLine": 19,
+      "endLine": 20,
+      "symbol": null,
+      "quote": "if __name__ == '__main__':\n    time.sleep(1)"
+    },
+    {
+      "path": "test_api.py",
+      "startLine": 1,
+      "endLine": 2,
+      "symbol": null,
+      "quote": "import pymysql, requests, json\ntry:"
+    },
+    {
+      "path": "test_api_v2.py",
+      "startLine": 1,
+      "endLine": 2,
+      "symbol": null,
+      "quote": "import pymysql, requests, json\ntry:"
+    },
+    {
+      "path": "test_api.py",
+      "startLine": 27,
+      "endLine": 28,
+      "symbol": null,
+      "quote": "except Exception as e:\n    print('Script Error:', e)"
+    },
+    {
+      "path": "test_api_v2.py",
+      "startLine": 27,
+      "endLine": 28,
+      "symbol": null,
+      "quote": "except Exception as e:\n    print('Script Error:', e)"
+    }
+  ],
+  "reasoning": "The owned files are presented as pytest tests, but none define test functions, fixtures, or assertions. smoke_test.py only runs its checks under __main__, which pytest will not execute during normal collection. test_api.py and test_api_v2.py run side-effect code at import time and swallow top-level failures by printing them, so API or database failures are not represented as test failures. This means the claimed test-suite feature does not reliably validate the application behavior it appears to cover.",
+  "reproduction": "Run pytest against these files. There are no collected test items/assertions, and failures inside test_api.py/test_api_v2.py are caught and printed instead of failing the run.",
+  "recommendation": "Convert these scripts into real pytest tests: move side-effect code into functions named test_*, use fixtures for API base URL and database connection, and replace print-only checks with assertions on HTTP status codes, JSON shape, and expected database/API relationships. Do not catch broad exceptions unless the test re-raises or explicitly fails.",
+  "whyTestsDoNotAlreadyCoverThis": "These files are the tests under review; their current structure is the reason failures are not enforced.",
+  "suggestedRegressionTest": "Add a pytest test that monkeypatches or fixtures the API/DB dependencies, forces an endpoint failure, and asserts pytest reports a failing test rather than only printing the error.",
+  "minimumFixScope": "Refactor smoke_test.py, test_api.py, and test_api_v2.py into collected pytest test functions with assertions and failing exception behavior.",
+  "status": "open",
+  "history": [],
+  "signature": "sig_feat-test-suite-a6226f638f_1ae90e5bbe",
+  "linkedPatchAttemptIds": [],
+  "createdByRunId": "20260519T120311-cad270",
+  "createdAt": "2026-05-19T12:03:50.762Z",
+  "updatedAt": "2026-05-19T12:03:50.762Z"
+}

@@ -26,7 +26,8 @@ export default function OfficerDashboardPage() {
   const totalAssigned = assigned.length;
   const activeInvestigations = assigned.filter((a:any) => !["resolved","closed"].includes((a.status ?? "").toLowerCase())).length;
   const pendingReports = assigned.filter((a:any) => (a.status ?? "").toLowerCase() === "pending").length;
-  const resolvedCases = assigned.filter((a:any) => ["resolved","closed"].includes((a.status ?? "").toLowerCase())).length;
+  const computedResolved = assigned.filter((a:any) => ["resolved","closed"].includes((a.status ?? "").toLowerCase())).length;
+  const resolvedCases = (officerProfile && typeof officerProfile.resolved_cases !== 'undefined') ? officerProfile.resolved_cases : computedResolved;
 
   return (
     <div className="space-y-6">

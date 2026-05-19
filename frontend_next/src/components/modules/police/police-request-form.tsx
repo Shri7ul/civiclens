@@ -14,9 +14,9 @@ import { verificationService } from "@/services/verification.service";
 import { useState } from "react";
 
 interface FormValues {
-  title: string;
   description: string;
   area?: string;
+  location?: string;
   category?: string;
   request_type?: string;
 }
@@ -40,14 +40,16 @@ export function PoliceRequestForm() {
       request_type: string;
       description: string;
       area?: string;
+      location?: string;
     }
 
     const payload: PoliceRequestPayload = {
       user_id: session.user_id,
-      category: values.category ?? "General",
+      category: values.category ?? "Other",
       request_type: values.request_type ?? "Complaint",
       description: values.description,
       area: values.area,
+      location: values.location
     };
 
     try {
@@ -67,14 +69,34 @@ export function PoliceRequestForm() {
       <CardHeader><CardTitle>Submit Police Request / GD</CardTitle></CardHeader>
       <CardContent>
         <form className="grid gap-4" onSubmit={handleSubmit(onSubmit)}>
-          <Input placeholder="Request title" {...register("title", { required: true })} />
-          {errors.title && <p className="text-sm text-rose-500">Request title is required.</p>}
-          <Input placeholder="Area / Location" {...register("area")} />
+          <select className="h-11 rounded-xl border bg-white/80 px-3 text-sm dark:bg-white/[0.06]" {...register("area")}> 
+            <option value="">Select area</option>
+            <option value="Dhaka">Dhaka</option>
+            <option value="Chittagong">Chittagong</option>
+            <option value="Khulna">Khulna</option>
+            <option value="Rajshahi">Rajshahi</option>
+            <option value="Sylhet">Sylhet</option>
+            <option value="Barishal">Barishal</option>
+            <option value="Rangpur">Rangpur</option>
+          </select>
+          <Input placeholder="Location (e.g. Mirpur 12, Uttara Sector 7)" {...register("location")} />
           <select className="h-11 rounded-xl border bg-white/80 px-3 text-sm dark:bg-white/[0.06]" {...register("category")}> 
-            <option value="General">General</option>
+            <option value="Other">Other</option>
             <option value="Theft">Theft</option>
             <option value="Assault">Assault</option>
-            <option value="Other">Other</option>
+            <option value="Murder">Murder</option>
+            <option value="Missing Person">Missing Person</option>
+            <option value="Harassment">Harassment</option>
+            <option value="Cyber Crime">Cyber Crime</option>
+            <option value="Drug Activity">Drug Activity</option>
+            <option value="Corruption">Corruption</option>
+            <option value="Kidnapping">Kidnapping</option>
+            <option value="Domestic Violence">Domestic Violence</option>
+            <option value="Terror Threat">Terror Threat</option>
+            <option value="Fraud">Fraud</option>
+            <option value="Extortion">Extortion</option>
+            <option value="Human Trafficking">Human Trafficking</option>
+            <option value="Public Disturbance">Public Disturbance</option>
           </select>
           <select className="h-11 rounded-xl border bg-white/80 px-3 text-sm dark:bg-white/[0.06]" {...register("request_type")}> 
             <option value="Complaint">Complaint</option>

@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "featureId": "feat_library_d8e5ddfc31",
+  "title": "Python project civiclens",
+  "summary": "Python project metadata in requirements.txt.",
+  "kind": "library",
+  "source": "python-project",
+  "confidence": "medium",
+  "entrypoints": [
+    {
+      "path": "requirements.txt",
+      "symbol": null,
+      "route": null,
+      "command": null
+    }
+  ],
+  "ownedFiles": [
+    {
+      "path": "requirements.txt",
+      "reason": "python project metadata"
+    }
+  ],
+  "contextFiles": [
+    {
+      "path": "README.md",
+      "reason": "python project context"
+    }
+  ],
+  "tests": [],
+  "tags": [
+    "python",
+    "package"
+  ],
+  "trustBoundaries": [],
+  "status": "reviewed",
+  "lock": null,
+  "findingIds": [],
+  "patchAttemptIds": [],
+  "analysisHistory": [
+    {
+      "runId": "20260519T120024-3d6a48",
+      "kind": "review-error",
+      "summary": "codex provider failed: spawn codex ENOENT",
+      "provider": "codex",
+      "model": null,
+      "reasoningEffort": null,
+      "createdAt": "2026-05-19T12:00:24.806Z"
+    },
+    {
+      "runId": "20260519T120108-8113b6",
+      "kind": "review-error",
+      "summary": "codex provider failed: spawn codex ENOENT",
+      "provider": "codex",
+      "model": null,
+      "reasoningEffort": null,
+      "createdAt": "2026-05-19T12:01:08.659Z"
+    },
+    {
+      "runId": "20260519T120311-cad270",
+      "kind": "review",
+      "summary": "0 finding(s)",
+      "provider": "codex",
+      "model": null,
+      "reasoningEffort": null,
+      "createdAt": "2026-05-19T12:03:28.617Z"
+    }
+  ],
+  "createdAt": "2026-05-19T12:00:05.444Z",
+  "updatedAt": "2026-05-19T12:03:28.617Z"
+}

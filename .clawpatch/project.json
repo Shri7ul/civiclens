@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "projectId": "prj_https-github-com-shri7ul-civicle_7c9fd738b8",
+  "name": "civiclens",
+  "rootPath": "D:/Versity/261/DBMS lab/civiclens",
+  "git": {
+    "remoteUrl": "https://github.com/Shri7ul/civiclens.git",
+    "defaultBranch": "main",
+    "currentBranch": "main",
+    "headSha": "97c6cf8ff6038b1213a990e297b5e1808967f054"
+  },
+  "detected": {
+    "languages": [
+      "python"
+    ],
+    "frameworks": [
+      "fastapi"
+    ],
+    "packageManagers": [
+      "pip"
+    ],
+    "commands": {
+      "typecheck": null,
+      "lint": null,
+      "format": null,
+      "test": "pytest"
+    }
+  },
+  "createdAt": "2026-05-19T11:59:50.612Z",
+  "updatedAt": "2026-05-19T11:59:50.612Z"
+}

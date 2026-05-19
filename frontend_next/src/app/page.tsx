@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, BadgeCheck, Landmark, ShieldCheck, type LucideIcon } from "lucide-react";
+import { ArrowRight, BadgeCheck, Landmark, ShieldCheck, Map, type LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
@@ -29,6 +29,7 @@ export default function LandingPage() {
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <Button asChild size="lg"><Link href="/login">Access platform <ArrowRight className="h-4 w-4" /></Link></Button>
             <Button asChild size="lg" variant="secondary"><Link href="/register">Create account</Link></Button>
+            <Button asChild size="lg" variant="ghost"><Link href="/public-dashboard"><Map className="inline-block mr-2 h-4 w-4 align-middle" />Public Dashboard</Link></Button>
           </div>
         </div>
         <Card className="p-5">

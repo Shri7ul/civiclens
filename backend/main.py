@@ -45,6 +45,9 @@ from routes.case_document_routes import (
 from routes.admin_routes import (
     router as admin_router
 )
+from routes.public_routes import (
+    router as public_router
+)
 
 from models.user_profile_model import (
     UserProfile
@@ -56,6 +59,7 @@ from models.user_verification_model import (
 from models.demo_nid_model import (
     DemoNIDData
 )
+from models.public_case_model import PublicCase
 
 
 app = FastAPI(
@@ -92,6 +96,7 @@ app.include_router(crime_assignment_router)
 app.include_router(case_update_router)
 app.include_router(case_document_router)
 app.include_router(admin_router)
+app.include_router(public_router)
 
 @app.get("/")
 def home():

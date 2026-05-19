@@ -1,0 +1,102 @@
+{
+  "schemaVersion": 1,
+  "featureId": "feat_test-suite_a6226f638f",
+  "title": "Python test suite tests",
+  "summary": "Python pytest files in tests.",
+  "kind": "test-suite",
+  "source": "python-test-suite",
+  "confidence": "medium",
+  "entrypoints": [
+    {
+      "path": "tests",
+      "symbol": "tests",
+      "route": null,
+      "command": null
+    }
+  ],
+  "ownedFiles": [
+    {
+      "path": "smoke_test.py",
+      "reason": "pytest file"
+    },
+    {
+      "path": "test_api.py",
+      "reason": "pytest file"
+    },
+    {
+      "path": "test_api_v2.py",
+      "reason": "pytest file"
+    }
+  ],
+  "contextFiles": [
+    {
+      "path": "smoke_test.py",
+      "reason": "nearby test"
+    },
+    {
+      "path": "test_api.py",
+      "reason": "nearby test"
+    },
+    {
+      "path": "test_api_v2.py",
+      "reason": "nearby test"
+    }
+  ],
+  "tests": [
+    {
+      "path": "smoke_test.py",
+      "command": "pytest"
+    },
+    {
+      "path": "test_api.py",
+      "command": "pytest"
+    },
+    {
+      "path": "test_api_v2.py",
+      "command": "pytest"
+    }
+  ],
+  "tags": [
+    "python",
+    "test"
+  ],
+  "trustBoundaries": [],
+  "status": "needs-fix",
+  "lock": null,
+  "findingIds": [
+    "fnd_sig-feat-test-suite-a6226f638f-1_f236061f2e",
+    "fnd_sig-feat-test-suite-a6226f638f-1_9c2925906e"
+  ],
+  "patchAttemptIds": [],
+  "analysisHistory": [
+    {
+      "runId": "20260519T120024-3d6a48",
+      "kind": "review-error",
+      "summary": "codex provider failed: spawn codex ENOENT",
+      "provider": "codex",
+      "model": null,
+      "reasoningEffort": null,
+      "createdAt": "2026-05-19T12:00:24.811Z"
+    },
+    {
+      "runId": "20260519T120108-8113b6",
+      "kind": "review-error",
+      "summary": "codex provider failed: spawn codex ENOENT",
+      "provider": "codex",
+      "model": null,
+      "reasoningEffort": null,
+      "createdAt": "2026-05-19T12:01:08.664Z"
+    },
+    {
+      "runId": "20260519T120311-cad270",
+      "kind": "review",
+      "summary": "2 finding(s)",
+      "provider": "codex",
+      "model": null,
+      "reasoningEffort": null,
+      "createdAt": "2026-05-19T12:03:50.763Z"
+    }
+  ],
+  "createdAt": "2026-05-19T12:00:05.444Z",
+  "updatedAt": "2026-05-19T12:03:50.763Z"
+}

@@ -68,6 +68,7 @@ def add_police_request(
         request_type=request.request_type,
         description=request.description,
         area=request.area if hasattr(request, 'area') else None,
+        location=request.location if hasattr(request, 'location') else None,
         status="Pending"
     )
 

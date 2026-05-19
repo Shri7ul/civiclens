@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "findingId": "fnd_sig-feat-library-25faef2bc4-4aa5_35e827b614",
+  "featureId": "feat_library_25faef2bc4",
+  "title": "Template script creates project files as an import side effect",
+  "category": "build-release",
+  "severity": "low",
+  "confidence": "high",
+  "triage": "risk",
+  "evidence": [
+    {
+      "path": "template.py",
+      "startLine": 42,
+      "endLine": 54,
+      "symbol": null,
+      "quote": "for folder in folders:\n    os.makedirs(folder, exist_ok=True)\n    print(f\"Created folder: {folder}\")\n\n# Create files\nfor file in files:\n    if not os.path.exists(file):\n        with open(file, \"w\") as f:\n            pass\n        print(f\"Created file: {file}\")\n    else:\n        print(f\"Already exists: {file}\")"
+    }
+  ],
+  "reasoning": "All filesystem creation runs at module top level. Any test discovery, import, static analysis helper, or packaging step that imports `template.py` will create directories and empty files in the current working directory, which can pollute builds and developer worktrees.",
+  "reproduction": "From a clean temporary directory with this file on `PYTHONPATH`, run `python -c \"import template\"`; it creates `backend`, `frontend`, `requirements.txt`, and `README.md` in the process working directory.",
+  "recommendation": "Move the creation logic into a `main()` function and invoke it only under `if __name__ == '__main__':`. Consider requiring an explicit target directory argument.",
+  "whyTestsDoNotAlreadyCoverThis": "No linked tests import `template.py` from an isolated working directory and assert that import is side-effect free.",
+  "suggestedRegressionTest": "Import `template.py` in a temporary directory and assert no project files are created until `main()` is called explicitly.",
+  "minimumFixScope": "Wrap the folder/file creation loops in `main()` and add a `__main__` guard.",
+  "status": "open",
+  "history": [],
+  "signature": "sig_feat-library-25faef2bc4_4aa5bc5243",
+  "linkedPatchAttemptIds": [],
+  "createdByRunId": "20260519T120311-cad270",
+  "createdAt": "2026-05-19T12:04:06.519Z",
+  "updatedAt": "2026-05-19T12:04:06.519Z"
+}

@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "runId": "20260519T120024-3d6a48",
+  "command": "review",
+  "args": [
+    "review",
+    "--limit",
+    "3"
+  ],
+  "rootPath": "D:/Versity/261/DBMS lab/civiclens",
+  "headSha": "97c6cf8ff6038b1213a990e297b5e1808967f054",
+  "startedAt": "2026-05-19T12:00:24.788Z",
+  "finishedAt": "2026-05-19T12:00:24.812Z",
+  "status": "failed",
+  "claimedFeatureIds": [
+    "feat_library_25faef2bc4",
+    "feat_library_d8e5ddfc31",
+    "feat_test-suite_a6226f638f"
+  ],
+  "findingIds": [],
+  "patchAttemptIds": [],
+  "errors": [
+    {
+      "message": "codex provider failed: spawn codex ENOENT",
+      "code": "provider-failure"
+    },
+    {
+      "message": "codex provider failed: spawn codex ENOENT",
+      "code": "provider-failure"
+    },
+    {
+      "message": "codex provider failed: spawn codex ENOENT",
+      "code": "provider-failure"
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "findingId": "fnd_sig-feat-library-25faef2bc4-2f0b_9dd13b0590",
+  "featureId": "feat_library_25faef2bc4",
+  "title": "Extracted names can include all following OCR fields",
+  "category": "bug",
+  "severity": "medium",
+  "confidence": "high",
+  "triage": "confirmed-bug",
+  "evidence": [
+    {
+      "path": "ocr_test_run.py",
+      "startLine": 44,
+      "endLine": 45,
+      "symbol": "extract_text",
+      "quote": "result = reader.readtext(path, detail=0, canvas_size=800, mag_ratio=1.0)\n    text = \" \".join(result)"
+    },
+    {
+      "path": "ocr_test_run.py",
+      "startLine": 65,
+      "endLine": 69,
+      "symbol": "parse_nid_fields",
+      "quote": "name_m = re.search(r'নাম[:ঃ]?\\s*([^\\n]+)', text)\n    if not name_m:\n        name_m = re.search(r'Name[:\\s]\\s*([^\\n]+)', text)\n    if name_m:\n        name = name_m.group(1).strip()"
+    }
+  ],
+  "reasoning": "`extract_text` flattens OCR output into one space-separated string with no newlines, but `parse_nid_fields` stops the name capture only at a newline. For typical OCR output containing `Name: Alice DOB: ... NID: ...`, the extracted name becomes `Alice DOB: ... NID: ...` rather than just the name.",
+  "reproduction": "Call `parse_nid_fields('Name: Alice Date of Birth: 01/01/1990 1234567890')`; the returned `name` includes the date and NID text after Alice.",
+  "recommendation": "Preserve OCR line boundaries when possible, or stop the name capture at known following labels such as DOB, Date of Birth, NID, ID No, or Bangla equivalents. Add parsing tests for text where fields appear on one OCR line.",
+  "whyTestsDoNotAlreadyCoverThis": "No linked tests exercise `parse_nid_fields`, including the common case where EasyOCR returns field labels as adjacent fragments that are later joined with spaces.",
+  "suggestedRegressionTest": "Assert that `parse_nid_fields('Name: Alice Date of Birth: 01/01/1990 NID 1234567890')` returns `name == 'Alice'` while still extracting dob and nid.",
+  "minimumFixScope": "Update `extract_text` or the name regexes in `parse_nid_fields` and add focused parser tests.",
+  "status": "open",
+  "history": [],
+  "signature": "sig_feat-library-25faef2bc4_2f0be9e7ef",
+  "linkedPatchAttemptIds": [],
+  "createdByRunId": "20260519T120311-cad270",
+  "createdAt": "2026-05-19T12:04:06.519Z",
+  "updatedAt": "2026-05-19T12:04:06.519Z"
+}
