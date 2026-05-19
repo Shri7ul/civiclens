@@ -33,3 +33,4 @@ class Officer(Base):
     specialization = Column(String(200))
 
     created_by_admin_id = Column(Integer)
+    resolved_cases = Column(Integer, default=0)

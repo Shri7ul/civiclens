@@ -61,7 +61,6 @@ def register_authority(
     new_authority = Authority(
         user_id=new_user.id,
         nid=authority.nid,
-        dob=authority.dob,
         address=authority.address
     )
 

@@ -21,4 +21,10 @@ export const caseService = {
   caseDocuments(policeRequestId: number) {
     return api.get(`/case-documents/${policeRequestId}`).then((res) => res.data);
   },
+  confirmSolved(payload: { police_request_id: number; user_id: number }) {
+    return api.post(`/case/confirm-solved`, payload).then((res) => res.data);
+  },
+  rejectSolved(payload: { police_request_id: number; user_id: number }) {
+    return api.post(`/case/reject-solved`, payload).then((res) => res.data);
+  },
 };

@@ -3,7 +3,6 @@ from pydantic import (
     EmailStr
 )
 
-from datetime import date
 
 class AuthorityRegister(BaseModel):
 
@@ -14,7 +13,5 @@ class AuthorityRegister(BaseModel):
     password: str
 
     nid: str
-
-    dob: date
 
     address: str

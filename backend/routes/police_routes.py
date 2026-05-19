@@ -102,6 +102,9 @@ def get_my_police_requests(
             "request_type": r.request_type,
             "description": r.description,
             "status": r.status,
+            "citizen_confirmation_pending": getattr(r, 'citizen_confirmation_pending', False),
+            "is_archived": getattr(r, 'is_archived', False),
+            "resolved_at": getattr(r, 'resolved_at', None),
             "created_at": getattr(r, 'created_at', None)
         })
 

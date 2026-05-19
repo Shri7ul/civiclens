@@ -58,12 +58,14 @@ export function RegisterForm() {
 
   async function onSubmit(values: BaseValues) {
     try {
+      // Confirm password for all roles
+      if (!values.confirm_password || values.confirm_password !== values.password) {
+        setError("confirm_password", { message: "Passwords do not match" });
+        return;
+      }
+
       // Per-role validation
       if (values.role === "citizen") {
-        if (!values.confirm_password || values.confirm_password !== values.password) {
-          setError("confirm_password", { message: "Passwords do not match" });
-          return;
-        }
         if (!values.phone) {
           setError("phone", { message: "Phone number required" });
           return;
@@ -85,11 +87,7 @@ export function RegisterForm() {
           setError("nid", { message: "NID required" });
           return;
         }
-        if (!values.dob) {
-          setError("dob", { message: "DOB required" });
-          return;
-        }
-        await authService.registerAuthority({ name: values.name, email: values.email, password: values.password, nid: values.nid, dob: values.dob, address: values.address });
+        await authService.registerAuthority({ name: values.name, email: values.email, password: values.password, nid: values.nid, address: values.address });
       } else if (values.role === "contractor") {
         if (!values.license_no) {
           setError("license_no", { message: "License number required" });
@@ -125,12 +123,12 @@ export function RegisterForm() {
             {errors.email && <p className="text-sm text-rose-500">{(errors.email as any).message}</p>}
             <Input placeholder="Password" type="password" {...register("password")} />
             {errors.password && <p className="text-sm text-rose-500">{(errors.password as any).message}</p>}
+            <Input placeholder="Confirm Password" type="password" {...register("confirm_password")} />
+            {errors.confirm_password && <p className="text-sm text-rose-500">{(errors.confirm_password as any).message}</p>}
 
             {/* Citizen fields */}
             {role === "citizen" && (
               <>
-                <Input placeholder="Confirm Password" type="password" {...register("confirm_password")} />
-                {errors.confirm_password && <p className="text-sm text-rose-500">{(errors.confirm_password as any).message}</p>}
                 <Input placeholder="Phone number" {...register("phone")} />
                 {errors.phone && <p className="text-sm text-rose-500">{(errors.phone as any).message}</p>}
               </>
@@ -160,17 +158,9 @@ export function RegisterForm() {
             {/* Authority fields */}
             {role === "authority" && (
               <>
-                <Input placeholder="NID" {...register("nid")} />
-                {errors.nid && <p className="text-sm text-rose-500">{(errors.nid as any).message}</p>}
-                <label className="text-sm">Date of Birth</label>
-                <Input placeholder="YYYY-MM-DD" {...register("dob")} />
-                {errors.dob && <p className="text-sm text-rose-500">{(errors.dob as any).message}</p>}
-                <Input placeholder="Address" {...register("address")} />
-                <label className="text-sm">Authority Type</label>
-                <select className="form-select" {...register("authority_type") as any}>
-                  <option value="">-- select authority type --</option>
-                  {AUTH_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
-                </select>
+                    <Input placeholder="NID" {...register("nid")} />
+                    {errors.nid && <p className="text-sm text-rose-500">{(errors.nid as any).message}</p>}
+                    <Input placeholder="Address" {...register("address")} />
               </>
             )}
 

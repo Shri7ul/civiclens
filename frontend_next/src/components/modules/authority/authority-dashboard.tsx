@@ -44,7 +44,7 @@ export default function AuthorityDashboard() {
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Card>
           <CardHeader><CardTitle>Unassigned Cases</CardTitle></CardHeader>
-          <CardContent>{unassignedQ.loading ? "..." : (unassignedQ.data ?? []).length}</CardContent>
+          <CardContent>{unassignedQ.loading ? "..." : statsQ.data?.total_unassigned_cases ?? (unassignedQ.data ?? []).length}</CardContent>
         </Card>
         <Card>
           <CardHeader><CardTitle>Active Investigations</CardTitle></CardHeader>
@@ -52,11 +52,11 @@ export default function AuthorityDashboard() {
         </Card>
         <Card>
           <CardHeader><CardTitle>Assigned Officers</CardTitle></CardHeader>
-          <CardContent>{(officersQ.data ?? []).length}</CardContent>
+          <CardContent>{statsQ.data?.total_assigned_officers ?? ((officersQ.data ?? []).length)}</CardContent>
         </Card>
         <Card>
           <CardHeader><CardTitle>Resolved Cases</CardTitle></CardHeader>
-          <CardContent>{(statsQ.data?.total_police_requests ?? 0) - (statsQ.data?.total_active_investigations ?? 0)}</CardContent>
+          <CardContent>{statsQ.data?.total_resolved_cases ?? 0}</CardContent>
         </Card>
       </div>
 
@@ -106,13 +106,23 @@ export default function AuthorityDashboard() {
             <CardHeader><CardTitle>Active Assignments</CardTitle></CardHeader>
             <CardContent>
               {/* Build a simple aggregated list by fetching assigned cases per officer */}
-              {(officersQ.data ?? []).map((o:any) => (
-                <div key={o.id} className="mb-4">
-                  <div className="text-sm font-semibold">{o.name} — {o.designation} — {o.area}</div>
-                  <div className="mt-1 text-sm">Active Cases: {o.active_cases ?? 0}</div>
-                  <div className="text-sm text-slate-400">Resolved Cases: {o.resolved_cases ?? 0}</div>
-                </div>
-              ))}
+              {statsQ.data?.active_assignments ? (
+                statsQ.data.active_assignments.map((a:any) => (
+                  <div key={a.police_request_id} className="mb-4">
+                    <div className="text-sm font-semibold">{a.officer_name} — {a.designation} — {a.area}</div>
+                    <div className="mt-1 text-sm">Case: #{a.police_request_id} — Status: {a.status}</div>
+                    <div className="text-sm text-slate-400">Last update: {a.last_update ? new Date(a.last_update).toLocaleString() : '-' } · Active workload: {a.active_workload}</div>
+                  </div>
+                ))
+              ) : (
+                (officersQ.data ?? []).map((o:any) => (
+                  <div key={o.id} className="mb-4">
+                    <div className="text-sm font-semibold">{o.name} — {o.designation} — {o.area}</div>
+                    <div className="mt-1 text-sm">Active Cases: {o.active_cases ?? 0}</div>
+                    <div className="text-sm text-slate-400">Resolved Cases: {o.resolved_cases ?? 0}</div>
+                  </div>
+                ))
+              )}
             </CardContent>
           </Card>
           <Card className="mt-6">

@@ -11,6 +11,7 @@ import { policeService } from "@/services/police.service";
 import { authorityService } from "@/services/authority.service";
 import { caseService } from "@/services/case.service";
 import { useState } from "react";
+import { toast } from "sonner";
 
 function formatDate(ts?: string | null) {
   if (!ts) return "-";
@@ -85,6 +86,31 @@ export function MyRequestsTable() {
                 </div>
                 <div className="text-sm text-slate-400">Priority: {item.priority ?? "Normal"}</div>
               </div>
+
+              {item.status === "Solved" && item.citizen_confirmation_pending && (
+                <div className="mt-3 flex items-center gap-2">
+                  <Button size="sm" onClick={async () => {
+                    try {
+                      await caseService.confirmSolved({ police_request_id: item.id, user_id: session!.user_id });
+                      toast.success("Case confirmed closed");
+                      q.refetch();
+                      if (expandedId === item.id) updatesQuery.refetch();
+                    } catch (err:any) {
+                      toast.error(err?.message || "Could not confirm case");
+                    }
+                  }}>Confirm Solved</Button>
+                  <Button size="sm" onClick={async () => {
+                    try {
+                      await caseService.rejectSolved({ police_request_id: item.id, user_id: session!.user_id });
+                      toast.success("Case marked as not solved");
+                      q.refetch();
+                      if (expandedId === item.id) updatesQuery.refetch();
+                    } catch (err:any) {
+                      toast.error(err?.message || "Could not mark as not solved");
+                    }
+                  }}>Not Solved</Button>
+                </div>
+              )}
 
               {expandedId === item.id && (
                 <div className="mt-4 space-y-4">

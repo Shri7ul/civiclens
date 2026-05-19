@@ -33,6 +33,7 @@ from models.user_verification_model import (
 from models.user_verification_model import (
     UserVerification
 )
+from utils.admin_utils import resolve_admin_id
 
 
 router = APIRouter()
@@ -65,6 +66,14 @@ def register_user(
             status_code=400,
             detail="Email already exists"
         )
+
+    # confirm password validation (if provided)
+    if getattr(user, "confirm_password", None) is not None:
+        if user.confirm_password != user.password:
+            raise HTTPException(
+                status_code=400,
+                detail="Passwords do not match"
+            )
 
     hashed_password = hash_password(
         user.password
@@ -262,6 +271,10 @@ def approve_user(
 
     user.is_approved = True
 
+    # determine admin id (resolve admin.id from provided identifier)
+    raw_admin = payload.get('admin_id') if payload else None
+    resolved_admin = resolve_admin_id(db, raw_admin) if raw_admin is not None else None
+
     # OFFICER
     if user.role == "officer":
 
@@ -269,11 +282,8 @@ def approve_user(
             Officer.user_id == user.id
         ).first()
 
-        if officer:
-
-            # try to use provided admin id, fall back to 1
-            admin_id = payload.get('admin_id') if payload else 1
-            officer.created_by_admin_id = admin_id
+        if officer and resolved_admin:
+            officer.created_by_admin_id = resolved_admin
 
     # AUTHORITY
     elif user.role == "authority":
@@ -282,10 +292,8 @@ def approve_user(
             Authority.user_id == user.id
         ).first()
 
-        if authority:
-
-            admin_id = payload.get('admin_id') if payload else 1
-            authority.created_by_admin_id = admin_id
+        if authority and resolved_admin:
+            authority.created_by_admin_id = resolved_admin
 
     # CONTRACTOR
     elif user.role == "contractor":
@@ -294,21 +302,21 @@ def approve_user(
             Contractor.user_id == user.id
         ).first()
 
-        if contractor:
-
-            admin_id = payload.get('admin_id') if payload else 1
-            contractor.created_by_admin_id = admin_id
+        if contractor and resolved_admin:
+            contractor.created_by_admin_id = resolved_admin
 
     # create audit log entry
     try:
         from models.audit_log_model import AuditLog
 
-        admin_id = payload.get('admin_id') if payload else 1
+        if resolved_admin:
+            audit_log = AuditLog(user_id=resolved_admin, action=f"Approved {user.role} user {user_id}")
+            db.add(audit_log)
+        else:
+            # no admin mapping found; log without admin reference
+            audit_log = AuditLog(user_id=None, action=f"Approved {user.role} user {user_id} (admin mapping missing)")
+            db.add(audit_log)
         print("CREATING AUDIT LOG")
-        audit_log = AuditLog(user_id=admin_id, action=f"Approved {user.role} user {user_id}")
-        print(audit_log.user_id)
-        print(audit_log.action)
-        db.add(audit_log)
     except Exception as e:
         print("Failed to create audit log", e)
 
@@ -344,12 +352,15 @@ def reject_user(
     try:
         from models.audit_log_model import AuditLog
 
-        admin_id = payload.get('admin_id') if payload else 1
+        raw_admin = payload.get('admin_id') if payload else None
+        resolved_admin = resolve_admin_id(db, raw_admin) if raw_admin is not None else None
+        if resolved_admin:
+            audit_log = AuditLog(user_id=resolved_admin, action=f"Rejected {user.role} user {user_id}")
+            db.add(audit_log)
+        else:
+            audit_log = AuditLog(user_id=None, action=f"Rejected {user.role} user {user_id} (admin mapping missing)")
+            db.add(audit_log)
         print("CREATING AUDIT LOG")
-        audit_log = AuditLog(user_id=admin_id, action=f"Rejected {user.role} user {user_id}")
-        print(audit_log.user_id)
-        print(audit_log.action)
-        db.add(audit_log)
     except Exception as e:
         print("Failed to create audit log", e)
 

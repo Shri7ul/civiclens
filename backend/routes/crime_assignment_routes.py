@@ -124,11 +124,14 @@ def get_assigned_cases(
     db: Session = Depends(get_db)
 ):
 
+    # return active assigned cases (exclude Closed and archived)
     requests = db.query(PoliceRequest).join(
         CrimeAssignment,
         CrimeAssignment.police_request_id == PoliceRequest.id
     ).filter(
-        CrimeAssignment.officer_id == officer_id
+        CrimeAssignment.officer_id == officer_id,
+        PoliceRequest.is_archived == False,
+        PoliceRequest.status != 'Closed'
     ).all()
 
     return requests
@@ -149,6 +152,8 @@ def get_unassigned_police_requests(
     ).filter(
         CrimeAssignment.id == None
     ).all()
+    # filter out archived or closed requests
+    q = [r for r in q if not getattr(r, 'is_archived', False) and (getattr(r, 'status', None) != 'Closed')]
 
     results = []
     for r in q:
@@ -180,14 +185,17 @@ def get_all_officers(
     out = []
     for officer, user in results:
         # compute workload: active and resolved counts for officer
+        # active: exclude Closed and archived
         active_count = db.query(CrimeAssignment).join(PoliceRequest, CrimeAssignment.police_request_id == PoliceRequest.id).filter(
             CrimeAssignment.officer_id == officer.id,
-            PoliceRequest.status.notin_(['Resolved', 'Closed'])
+            PoliceRequest.is_archived == False,
+            PoliceRequest.status != 'Closed'
         ).count()
 
+        # resolved: closed or archived
         resolved_count = db.query(CrimeAssignment).join(PoliceRequest, CrimeAssignment.police_request_id == PoliceRequest.id).filter(
             CrimeAssignment.officer_id == officer.id,
-            PoliceRequest.status.in_(['Resolved', 'Closed'])
+            ((PoliceRequest.status == 'Closed') | (PoliceRequest.is_archived == True))
         ).count()
 
         out.append({

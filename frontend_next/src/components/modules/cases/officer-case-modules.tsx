@@ -135,7 +135,14 @@ export function CaseUpdateForm() {
             ))}
           </select>
 
-          <Input placeholder="Status (investigating, resolved, closed)" {...register("case_status")} />
+          <label className="text-sm">Status</label>
+          <select {...register("case_status", { required: true })} className="w-full p-2 border rounded">
+            <option value="">-- select status --</option>
+            <option value="Under Investigation">Under Investigation</option>
+            <option value="Evidence Collected">Evidence Collected</option>
+            <option value="Suspect Identified">Suspect Identified</option>
+            <option value="Solved">Solved</option>
+          </select>
           <Textarea placeholder="Update details" {...register("update_message", { required: true })} />
 
           <div>
