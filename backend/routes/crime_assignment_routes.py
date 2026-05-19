@@ -163,6 +163,7 @@ def get_unassigned_police_requests(
             "request_type": r.request_type,
             "description": r.description,
             "area": getattr(r, 'area', None),
+            "location": getattr(r, 'location', None),
             "status": r.status,
             "created_at": getattr(r, 'created_at', None)
         })

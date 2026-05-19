@@ -45,19 +45,22 @@ export function CaseQueueTable() {
       <div className="mb-3"><Input placeholder="Filter by category or type..." value={filter} onChange={(e) => setFilter(e.target.value)} /></div>
       <TableWrap>
         <Table>
-          <thead><tr><Th>ID</Th><Th>Category</Th><Th>Type</Th><Th>Status</Th><Th>Created</Th><Th>Assign</Th></tr></thead>
+          <thead><tr><Th>ID</Th><Th>Category</Th><Th>Type</Th><Th>Area</Th><Th>Location</Th><Th>Recommended</Th><Th>Status</Th><Th>Created</Th><Th>Assign</Th></tr></thead>
           <tbody>
             {(q.data ?? []).filter((r:any) => `${r.category} ${r.request_type}`.toLowerCase().includes(filter.toLowerCase())).map((r:any) => (
               <tr key={r.id}>
                 <Td>{r.id}</Td>
                 <Td>{r.category}</Td>
                 <Td>{r.request_type}</Td>
+                <Td>{r.area ?? '-'}</Td>
+                <Td>{r.location ?? '-'}</Td>
+                <Td>{allowedDesignationsFor(r.category, r.request_type).join(', ')}</Td>
                 <Td><Badge>{r.status}</Badge></Td>
                 <Td>{r.created_at ? new Date(r.created_at).toLocaleString() : "-"}</Td>
                 <Td className="flex gap-2">
                   <select className="rounded-md border px-2 py-1 dark:bg-white/6" value={selectedOfficerFor[r.id] ?? ""} onChange={(e) => setSelectedOfficerFor({ ...selectedOfficerFor, [r.id]: e.target.value })}>
                     <option value="">Select officer</option>
-                    {((officersQ.data ?? []).filter((o:any) => isOfficerCompatible(o, r))).map((o:any) => <option key={o.id} value={o.id}>{o.name} — {o.designation} — {o.area} {o.active_cases > 5 ? ` (Active ${o.active_cases})` : ''}</option>)}
+                    {sortOfficersForRequest((officersQ.data ?? []), r).map((o:any) => <option key={o.id} value={o.id}>{o.name} — {o.designation} — {o.area} {o.active_cases > 5 ? ` (Active ${o.active_cases})` : ''}</option>)}
                   </select>
                   <Button size="sm" onClick={() => assign(r.id)}>Assign</Button>
                 </Td>
@@ -70,24 +73,41 @@ export function CaseQueueTable() {
   );
 }
 
-function isOfficerCompatible(officer: any, request: any) {
-  if (!officer || !request) return false;
-  if ((officer.area || '').toLowerCase() !== (request.area || '').toLowerCase()) return false;
-  const allowed = allowedDesignationsFor(request.category, request.request_type);
-  const officerDesignation = (officer.designation || '').toLowerCase();
-  return allowed.some((a:string) => a.toLowerCase() === officerDesignation);
+function sortOfficersForRequest(officers: any[], request: any) {
+  const allowed = allowedDesignationsFor(request.category, request.request_type).map((s:any) => s.toLowerCase());
+  // scoring: designation match high, area match medium, location match low
+  return (officers || []).slice().map((o:any) => {
+    let score = 0;
+    const od = (o.designation || '').toLowerCase();
+    if (allowed.includes(od)) score += 100;
+    if ((o.area || '').toLowerCase() === (request.area || '').toLowerCase()) score += 10;
+    // location match: if request.location mentions officer.area (best-effort)
+    if (request.location && o.area && request.location.toLowerCase().includes(o.area.toLowerCase())) score += 1;
+    return { officer: o, score };
+  }).sort((a:any,b:any) => {
+    if (b.score !== a.score) return b.score - a.score;
+    // tie-breaker: fewer active cases first
+    return (a.officer.active_cases || 0) - (b.officer.active_cases || 0);
+  }).map((s:any) => s.officer);
 }
 
 function allowedDesignationsFor(category?: string, request_type?: string) {
   const cat = (category || '').toLowerCase();
   const rt = (request_type || '').toLowerCase();
-  const low = ['Constable', 'ASI'];
-  const medium = ['SI'];
-  const high = ['Inspector', 'DB', 'CBI'];
-  if (cat.includes('fraud') || cat.includes('cyber') || rt.includes('fraud') || rt.includes('cyber')) return [...medium, ...high];
-  if (cat.includes('major') || cat.includes('homicide') || cat.includes('murder')) return high;
-  if (cat.includes('snatch') || cat.includes('theft') || cat.includes('robbery')) return [...low, ...medium];
-  return low;
+  // designation mapping per category
+  if (cat.includes('murder') || cat.includes('homicide')) return ['DB', 'CID', 'Inspector'];
+  if (cat.includes('cyber') || cat.includes('fraud')) return ['CBI', 'DB', 'Inspector'];
+  if (cat.includes('drug')) return ['CID', 'DB', 'Inspector'];
+  if (cat.includes('corruption')) return ['Inspector', 'DB'];
+  if (cat.includes('theft') || cat.includes('snatch') || cat.includes('robbery')) return ['Constable', 'Inspector', 'SI'];
+  if (cat.includes('missing')) return ['Inspector', 'SI'];
+  if (cat.includes('harassment') || cat.includes('domestic')) return ['Constable', 'ASI'];
+  if (cat.includes('kidnap') || cat.includes('kidnapping')) return ['CID', 'DB'];
+  if (cat.includes('terror')) return ['CBI', 'DB'];
+  if (cat.includes('extortion') || cat.includes('public') || cat.includes('disturbance')) return ['Constable', 'SI', 'Inspector'];
+  if (cat.includes('human') && cat.includes('trafficking')) return ['DB', 'CID'];
+  // default
+  return ['Constable', 'ASI', 'SI'];
 }
 
 export function InvestigationTable() {

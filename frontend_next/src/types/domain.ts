@@ -8,6 +8,8 @@ export interface PoliceRequest {
   created_at?: string;
   citizen_id?: number;
   assigned_officer_id?: number;
+  area?: string;
+  location?: string;
 }
 
 export interface CaseUpdate {
