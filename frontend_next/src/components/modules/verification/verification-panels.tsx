@@ -16,6 +16,14 @@ import { verificationService } from "@/services/verification.service";
 export function VerificationStatusPanel() {
   const { session } = useAuth();
   const query = useApiQuery(() => session ? verificationService.getStatus(session.user_id) : Promise.resolve(null), [session?.user_id]);
+  // Listen for external verification updates and refetch
+  React.useEffect(() => {
+    function handler() {
+      query.refetch();
+    }
+    window.addEventListener("verification-updated", handler);
+    return () => window.removeEventListener("verification-updated", handler);
+  }, [query]);
   if (query.loading) return <Skeleton className="h-40" />;
   if (query.error) return <EmptyState title="Status unavailable" description={query.error} />;
   return <Card><CardHeader><CardTitle>Verification Status</CardTitle></CardHeader><CardContent><pre className="overflow-auto rounded-xl bg-slate-950 p-4 text-xs text-cyan-100">{JSON.stringify(query.data, null, 2)}</pre></CardContent></Card>;
@@ -73,8 +81,10 @@ export function NidVerificationForm() {
       setIsSubmitting(true);
       const res = await verificationService.uploadNidImage(form);
       if (res && res.message) {
-        if (res.extracted && res.extracted.nid && res.extracted.dob) {
+        if (res.extracted && res.extracted.nid && res.extracted.dob && res.message && res.message.toLowerCase().includes("successful")) {
           toast.success("NID extracted and account verified");
+          // notify other components to refresh status
+          window.dispatchEvent(new Event("verification-updated"));
         } else {
           toast.error(res.message || "OCR parsing incomplete. Please try a clearer image.");
         }

@@ -18,9 +18,6 @@ class DemoNIDData(Base):
     )
 
     full_name = Column(String(100))
-
     nid = Column(String(100))
 
     dob = Column(Date)
-
-    phone = Column(String(20))

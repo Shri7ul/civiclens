@@ -734,3 +734,11 @@ UPDATE admins
 SET user_id = 7
 WHERE id = 1;
 ```
+
+```sql id="39aj8v"
+ALTER TABLE user_verification ADD COLUMN nid_image_path VARCHAR(255);
+```
+```sql id="39aj8v"
+INSERT INTO demo_nid_data (nid, dob)
+VALUES ('1234567890', '1999-04-03');
+```

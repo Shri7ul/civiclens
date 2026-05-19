@@ -27,7 +27,7 @@ class UserVerification(Base):
 
     dob = Column(String(100))
 
-    
+    nid_image_path = Column(String(255))
 
     otp_code = Column(String(10))
 
