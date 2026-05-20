@@ -4,7 +4,7 @@
 uvicorn main:app --reload
 ```
 ```bash
-streamlit run app.py
+npm run dev
 ```
 ```bash
 CREATE DATABASE civiclens_db;
