@@ -31,5 +31,6 @@ class PublicCase(Base):
     assigned_officer_id = Column(Integer, ForeignKey("officers.id"), nullable=True)
     created_by_admin_id = Column(Integer, nullable=True)
     is_featured = Column(Boolean, default=False)
+    cover_image = Column(String(500), nullable=True)
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())

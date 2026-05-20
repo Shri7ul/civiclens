@@ -47,6 +47,18 @@ checks = [
         'column': 'title',
         'ddl': "CREATE TABLE public_cases (\n            id INT AUTO_INCREMENT PRIMARY KEY,\n            title VARCHAR(255),\n            description TEXT,\n            area VARCHAR(100),\n            status VARCHAR(100),\n            source_name VARCHAR(255),\n            source_url VARCHAR(512),\n            assigned_officer_id INT NULL,\n            created_by_admin_id INT NULL,\n            is_featured BOOLEAN DEFAULT FALSE,\n            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,\n            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP\n        )"
     }
+,
+    {
+        'table': 'public_cases',
+        'column': 'cover_image',
+        'ddl': "ALTER TABLE public_cases ADD COLUMN cover_image VARCHAR(500) NULL"
+    }
+,
+    {
+        'table': 'public_case_updates',
+        'column': 'public_case_id',
+        'ddl': "CREATE TABLE public_case_updates (\n+            id INT AUTO_INCREMENT PRIMARY KEY,\n+            public_case_id INT NOT NULL,\n+            officer_id INT NULL,\n+            update_message TEXT,\n+            case_status VARCHAR(100),\n+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP\n+        )"
+    }
 ]
 
 with engine.connect() as conn:

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight, BadgeCheck, Landmark, ShieldCheck, Map, type LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import FeaturedPublicCases from "@/components/modules/public-cases/featured";
 
 export default function LandingPage() {
   const features: Array<{ title: string; text: string; icon: LucideIcon }> = [
@@ -31,6 +32,7 @@ export default function LandingPage() {
             <Button asChild size="lg" variant="secondary"><Link href="/register">Create account</Link></Button>
             <Button asChild size="lg" variant="ghost"><Link href="/public-dashboard"><Map className="inline-block mr-2 h-4 w-4 align-middle" />Public Dashboard</Link></Button>
           </div>
+          <FeaturedPublicCases />
         </div>
         <Card className="p-5">
           <div className="grid gap-4">
