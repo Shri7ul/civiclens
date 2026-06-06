@@ -34,9 +34,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const role = localStorage.getItem(sessionStorageKeys.role);
     const userId = localStorage.getItem(sessionStorageKeys.userId);
     const parsedUserId = Number(userId);
+    const rolesRaw = localStorage.getItem("roles");
+    const hasCitizen = localStorage.getItem("has_citizen_services");
 
     if (access_token && isUserRole(role) && Number.isFinite(parsedUserId)) {
-      setSession({ access_token, role, user_id: parsedUserId });
+      const parsedRoles = rolesRaw ? JSON.parse(rolesRaw) as string[] : undefined;
+      setSession({ access_token, role, user_id: parsedUserId, roles: parsedRoles, has_citizen_services: hasCitizen === "1" });
     } else {
       clearSession();
     }
@@ -48,6 +51,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     persistSession(nextSession);
     document.cookie = `access_token=${nextSession.access_token}; path=/; max-age=86400; SameSite=Lax`;
     document.cookie = `role=${nextSession.role}; path=/; max-age=86400; SameSite=Lax`;
+    if (nextSession.roles) {
+      document.cookie = `roles=${encodeURIComponent(JSON.stringify(nextSession.roles))}; path=/; max-age=86400; SameSite=Lax`;
+    }
+    if (typeof nextSession.has_citizen_services !== "undefined") {
+      document.cookie = `has_citizen_services=${nextSession.has_citizen_services ? "1" : "0"}; path=/; max-age=86400; SameSite=Lax`;
+    }
     setSession(nextSession);
     toast.success("Signed in successfully");
     router.push(roleHomePath[nextSession.role]);
@@ -57,6 +66,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     clearSession();
     document.cookie = "access_token=; path=/; max-age=0";
     document.cookie = "role=; path=/; max-age=0";
+    document.cookie = "roles=; path=/; max-age=0";
+    document.cookie = "has_citizen_services=; path=/; max-age=0";
     setSession(null);
     router.push("/login");
   }, [router]);

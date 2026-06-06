@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from models.tender_model import Tender
+from models.contractor_model import Contractor
 from schemas.tender_schema import TenderCreate
 from utils.db import get_db
 
@@ -35,3 +36,32 @@ def add_tender(
     return {
         "message": "Tender Added Successfully"
     }
+
+
+@router.get("/tender-participation-status/{user_id}")
+def tender_participation_status(user_id: int, db: Session = Depends(get_db)):
+    """Return participation / assignment records for a contractor identified by user_id.
+
+    This uses the existing `contractors` and `tenders` tables. If the user is not a
+    contractor or no assignments exist, returns an empty list.
+    """
+    # find contractor record by user_id
+    contractor = db.query(Contractor).filter(Contractor.user_id == user_id).first()
+    if not contractor:
+        return []
+
+    # assigned / awarded tenders where tender.contractor_id == contractor.id
+    assigned = db.query(Tender).filter(Tender.contractor_id == contractor.id).all()
+
+    out = []
+    for t in assigned:
+        out.append({
+            "id": t.id,
+            "tender_id": t.id,
+            "tender_title": t.title,
+            "status": t.status or "assigned",
+            "submitted_at": None,
+            "remarks": None,
+        })
+
+    return out

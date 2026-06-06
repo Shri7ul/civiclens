@@ -76,7 +76,10 @@ export function MyRequestsTable() {
                 <div className="text-sm text-slate-300">{item.description}</div>
                 <div className="text-sm text-slate-300">
                   <div>Evidence: {evidenceCount ?? "—"}</div>
-                  <div>Verification: {verificationQ.data?.verification_completed ? "Completed" : verificationQ.data ? (verificationQ.data.verified ? "OTP verified" : "OTP pending") : "—"}</div>
+                  {/* Hide verification details for contractors — contractor accounts are authenticated */}
+                  {session?.role === "citizen" && (
+                    <div>Verification: {verificationQ.data?.verification_completed ? "Completed" : verificationQ.data ? (verificationQ.data.verified ? "OTP verified" : "OTP pending") : "—"}</div>
+                  )}
                 </div>
               </div>
 

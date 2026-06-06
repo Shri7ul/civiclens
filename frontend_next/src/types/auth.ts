@@ -4,6 +4,8 @@ export interface AuthSession {
   access_token: string;
   role: UserRole;
   user_id: number;
+  roles?: string[];
+  has_citizen_services?: boolean;
 }
 
 export interface LoginPayload {

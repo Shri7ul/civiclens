@@ -22,6 +22,7 @@ from auth.hashing import (
 from auth.jwt_handler import (
     create_access_token
 )
+from utils.role_utils import get_inherited_roles
 
 from models.user_profile_model import (
     UserProfile
@@ -190,10 +191,14 @@ def login_user(
             detail="Invalid password"
         )
 
+    # compute effective/inherited roles for the user and include in token + response
+    roles = get_inherited_roles(existing_user.role)
+
     access_token = create_access_token(
         data={
             "user_id": existing_user.id,
-            "role": existing_user.role
+            "role": existing_user.role,
+            "roles": roles
         }
     )
 
@@ -201,6 +206,8 @@ def login_user(
         "message": "Login Successful",
         "access_token": access_token,
         "role": existing_user.role,
+        "roles": roles,
+        "has_citizen_services": ('citizen' in roles),
         "user_id": existing_user.id
     }
 

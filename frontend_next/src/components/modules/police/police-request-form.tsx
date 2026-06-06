@@ -26,7 +26,8 @@ export function PoliceRequestForm() {
   const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<FormValues>({ defaultValues: { category: "General", request_type: "Complaint" } });
   const [files, setFiles] = useState<FileList | null>(null);
   const verificationQuery = useApiQuery(() => (session ? verificationService.getStatus(session.user_id) : Promise.resolve(null)), [session?.user_id]);
-  const locked = !(verificationQuery.data?.verification_completed);
+  // only require verification for plain `citizen` accounts
+  const locked = session?.role === "citizen" && !(verificationQuery.data?.verification_completed);
 
   async function onSubmit(values: FormValues) {
     if (!session) {

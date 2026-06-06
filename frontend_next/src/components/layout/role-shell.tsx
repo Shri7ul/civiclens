@@ -22,6 +22,7 @@ function Sidebar({ role, onNavigate }: { role: UserRole; onNavigate?: () => void
   const { session } = useAuth();
   const router = useRouter();
   const verificationQuery = useApiQuery(() => (session ? verificationService.getStatus(session.user_id) : Promise.resolve(null)), [session?.user_id]);
+  const showCitizenServices = Boolean(session?.has_citizen_services || session?.roles?.includes?.("citizen") || session?.role === "contractor");
   return (
     <aside className="flex h-full flex-col gap-6 p-5">
       <Link href="/" className="flex items-center gap-3" onClick={onNavigate}>
@@ -34,6 +35,9 @@ function Sidebar({ role, onNavigate }: { role: UserRole; onNavigate?: () => void
         </span>
       </Link>
       <nav className="flex flex-1 flex-col gap-2">
+        {role === "contractor" && (
+          <div className="mb-2 px-3.5 text-xs font-semibold uppercase text-slate-500">Tender Management</div>
+        )}
         {items.map(({ title, href, icon: Icon }) => {
           const isSubmit = role === "citizen" && href === "/citizen/submit-police-request";
           const locked = isSubmit && !(verificationQuery.data?.verification_completed);
@@ -75,6 +79,36 @@ function Sidebar({ role, onNavigate }: { role: UserRole; onNavigate?: () => void
             </Link>
           );
         })}
+        {showCitizenServices && role !== "citizen" && (
+          <div className="mt-3">
+            <div className="mb-2 px-3.5 text-xs font-semibold uppercase text-slate-500">Citizen Services</div>
+            {roleNavigation.citizen
+              // do not duplicate a top-level Dashboard entry and skip NID verification for inherited roles
+              .filter((c) => c.title.toLowerCase() !== "dashboard" && c.href !== "/citizen/nid-verification")
+              .filter((c) => !items.find((i) => i.href === c.href || i.title === c.title))
+              .map(({ title, href, icon: Icon }) => {
+                // map citizen href into current role namespace so workspace/layout stays the same
+                const mappedHref = `/${role}${href.replace("/citizen", "")}`;
+                const isActive = pathname === mappedHref;
+                return (
+                  <Link
+                    key={mappedHref}
+                    href={mappedHref}
+                    onClick={onNavigate}
+                    className={cn(
+                      "flex items-center gap-3 rounded-2xl px-3.5 py-3 text-sm font-semibold transition",
+                      isActive
+                        ? "bg-slate-950 text-white shadow-glow dark:bg-white dark:text-slate-950"
+                        : "text-slate-600 hover:bg-slate-900/5 hover:text-slate-950 dark:text-slate-300 dark:hover:bg-white/10 dark:hover:text-white",
+                    )}
+                  >
+                    <Icon className="h-5 w-5" />
+                    {title}
+                  </Link>
+                );
+              })}
+          </div>
+        )}
       </nav>
     </aside>
   );
@@ -84,7 +118,7 @@ export function RoleShell({ role, children }: { role: UserRole; children: React.
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const { theme, setTheme } = useTheme();
-  const { isAuthenticated, isLoading, logout, role: activeRole } = useAuth();
+  const { isAuthenticated, isLoading, logout, role: activeRole, session } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -94,9 +128,13 @@ export function RoleShell({ role, children }: { role: UserRole; children: React.
       return;
     }
     if (activeRole && activeRole !== role) {
-      router.replace(roleNavigation[activeRole][0].href);
+      // allow access when the active user's inherited roles include the requested layout role
+      const hasInherited = Boolean(session?.roles && session.roles.includes(role));
+      if (!hasInherited) {
+        router.replace(roleNavigation[activeRole][0].href);
+      }
     }
-  }, [activeRole, isAuthenticated, isLoading, role, router]);
+  }, [activeRole, isAuthenticated, isLoading, role, router, session]);
 
   if (isLoading) {
     return (
@@ -111,7 +149,13 @@ export function RoleShell({ role, children }: { role: UserRole; children: React.
     );
   }
 
-  if (!isAuthenticated || activeRole !== role) {
+  // allow render when user is authenticated and either primary role matches the layout role
+  // OR the user's inherited roles include the layout role (e.g., officer -> citizen)
+  const allowedToRender = Boolean(
+    isAuthenticated && (activeRole === role || (session?.roles && session.roles.includes(role))),
+  );
+
+  if (!allowedToRender) {
     return null;
   }
 
