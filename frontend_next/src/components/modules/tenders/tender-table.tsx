@@ -10,14 +10,15 @@ import { tenderService } from "@/services/tender.service";
 
 export function TenderTable() {
   const query = useApiQuery(tenderService.list, []);
+  const { session } = useAuth();
   if (query.loading) return <Skeleton className="h-56" />;
   if (query.error) return <EmptyState title="Could not load tenders" description={query.error} />;
   if (!query.data?.length) return <EmptyState title="No tenders published" description="Tender records from /tenders will appear here." />;
   return (
     <TableWrap>
       <Table>
-        <thead><tr><Th>ID</Th><Th>Title</Th><Th>Budget</Th><Th>Deadline</Th><Th>Status</Th></tr></thead>
-        <tbody>{query.data.map((item) => <tr key={item.id}><Td>{item.id}</Td><Td>{item.title}</Td><Td>{item.budget ?? "-"}</Td><Td>{item.deadline ?? "-"}</Td><Td><Badge>{item.status ?? "open"}</Badge></Td></tr>)}</tbody>
+        <thead><tr><Th>ID</Th><Th>Title</Th><Th>Budget</Th><Th>Deadline</Th><Th>Status</Th><Th>Action</Th></tr></thead>
+        <tbody>{query.data.map((item) => <tr key={item.id}><Td>{item.id}</Td><Td>{item.title}</Td><Td>{item.budget ?? "-"}</Td><Td>{item.deadline ?? "-"}</Td><Td><Badge>{item.status ?? "open"}</Badge></Td><Td><a className="text-cyan-400" href={`/${session?.role ?? 'citizen'}/tenders/${item.id}`}>View</a></Td></tr>)}</tbody>
       </Table>
     </TableWrap>
   );

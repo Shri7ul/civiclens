@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 19, 2026 at 05:10 PM
+-- Generation Time: Jun 06, 2026 at 07:17 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -78,7 +78,16 @@ INSERT INTO `audit_logs` (`id`, `user_id`, `action`, `timestamp`, `log_type`) VA
 (16, 26, 'Citizen confirmed solved for case #11', '2026-05-19 12:25:20', 'system'),
 (17, 12, 'Assigned case #12 to officer 8', '2026-05-19 12:31:25', 'system'),
 (18, 26, 'Citizen confirmed solved for case #12', '2026-05-19 12:32:25', 'system'),
-(19, 1, 'Assigned case #13 to officer 7', '2026-05-19 15:07:10', 'system');
+(19, 1, 'Assigned case #13 to officer 7', '2026-05-19 15:07:10', 'system'),
+(20, 12, 'Assigned case #14 to officer 7', '2026-05-19 19:18:10', 'system'),
+(21, 35, 'Citizen confirmed solved for case #14', '2026-05-19 19:20:33', 'system'),
+(22, 2, 'Approved officer user 40', '2026-05-19 19:26:51', 'system'),
+(23, 37, 'Assigned case #15 to officer 9', '2026-05-20 10:44:03', 'system'),
+(24, 41, 'Citizen rejected solved for case #15', '2026-05-20 10:46:40', 'system'),
+(25, 41, 'Citizen confirmed solved for case #15', '2026-05-20 10:47:07', 'system'),
+(26, 37, 'Assigned case #16 to officer 9', '2026-05-20 11:43:13', 'system'),
+(27, 42, 'Citizen confirmed solved for case #16', '2026-05-20 11:45:58', 'system'),
+(28, 2, 'Approved contractor user 43', '2026-06-06 15:32:23', 'system');
 
 -- --------------------------------------------------------
 
@@ -174,7 +183,22 @@ INSERT INTO `case_updates` (`id`, `request_id`, `status`, `note`, `updated_at`) 
 (19, 12, 'Solved', 'Problem Solved', '2026-05-19 18:32:01'),
 (20, 12, 'Solved', 'Officer marked case as Solved', '2026-05-19 18:32:01'),
 (21, 12, 'Closed', 'Citizen confirmed case as solved', '2026-05-19 18:32:25'),
-(22, 12, 'Closed', 'Case archived after confirmation', '2026-05-19 18:32:25');
+(22, 12, 'Closed', 'Case archived after confirmation', '2026-05-19 18:32:25'),
+(23, 14, 'Solved', 'gvghf', '2026-05-20 01:20:02'),
+(24, 14, 'Solved', 'Officer marked case as Solved', '2026-05-20 01:20:02'),
+(25, 14, 'Closed', 'Citizen confirmed case as solved', '2026-05-20 01:20:33'),
+(26, 14, 'Closed', 'Case archived after confirmation', '2026-05-20 01:20:33'),
+(27, 15, 'Solved', 'sdfh dfbdfg  vg', '2026-05-20 16:45:25'),
+(28, 15, 'Solved', 'Officer marked case as Solved', '2026-05-20 16:45:25'),
+(29, 15, 'Under Investigation', 'Citizen rejected solved status', '2026-05-20 16:46:40'),
+(30, 15, 'Solved', 'dytj sadf', '2026-05-20 16:46:58'),
+(31, 15, 'Solved', 'Officer marked case as Solved', '2026-05-20 16:46:58'),
+(32, 15, 'Closed', 'Citizen confirmed case as solved', '2026-05-20 16:47:07'),
+(33, 15, 'Closed', 'Case archived after confirmation', '2026-05-20 16:47:07'),
+(34, 16, 'Solved', 'kjgb ygjb j gyfg ', '2026-05-20 17:45:02'),
+(35, 16, 'Solved', 'Officer marked case as Solved', '2026-05-20 17:45:02'),
+(36, 16, 'Closed', 'Citizen confirmed case as solved', '2026-05-20 17:45:58'),
+(37, 16, 'Closed', 'Case archived after confirmation', '2026-05-20 17:45:58');
 
 -- --------------------------------------------------------
 
@@ -196,7 +220,8 @@ CREATE TABLE `contractors` (
 --
 
 INSERT INTO `contractors` (`id`, `company`, `license_no`, `contact_info`, `user_id`, `created_by_admin_id`) VALUES
-(1, 'ABC Ltd', 'LIC123', '01711111111', NULL, NULL);
+(1, 'ABC Ltd', 'LIC123', '01711111111', NULL, NULL),
+(2, 'XYZ', '45413743654', '364854133511', 43, 2);
 
 -- --------------------------------------------------------
 
@@ -299,7 +324,15 @@ INSERT INTO `notifications` (`id`, `user_id`, `message`, `is_read`, `req_id`) VA
 (7, 26, 'Officer marked your case #11 as Solved. Please confirm if the issue is resolved or mark Not Solved.', 0, 11),
 (8, 38, 'Citizen confirmed case #11 as solved. Case is now closed.', 0, 11),
 (9, 26, 'Officer marked your case #12 as Solved. Please confirm if the issue is resolved or mark Not Solved.', 0, 12),
-(10, 38, 'Citizen confirmed case #12 as solved. Case is now closed.', 0, 12);
+(10, 38, 'Citizen confirmed case #12 as solved. Case is now closed.', 0, 12),
+(11, 35, 'Officer marked your case #14 as Solved. Please confirm if the issue is resolved or mark Not Solved.', 0, 14),
+(12, 36, 'Citizen confirmed case #14 as solved. Case is now closed.', 0, 14),
+(13, 41, 'Officer marked your case #15 as Solved. Please confirm if the issue is resolved or mark Not Solved.', 0, 15),
+(14, 40, 'Citizen marked case #15 as Not Solved. Please review and continue investigation.', 0, 15),
+(15, 41, 'Officer marked your case #15 as Solved. Please confirm if the issue is resolved or mark Not Solved.', 0, 15),
+(16, 40, 'Citizen confirmed case #15 as solved. Case is now closed.', 0, 15),
+(17, 42, 'Officer marked your case #16 as Solved. Please confirm if the issue is resolved or mark Not Solved.', 0, 16),
+(18, 40, 'Citizen confirmed case #16 as solved. Case is now closed.', 0, 16);
 
 -- --------------------------------------------------------
 
@@ -330,8 +363,9 @@ INSERT INTO `officers` (`id`, `nid`, `designation`, `address`, `created_by_admin
 (4, '48963547', 'CA', 'mirpur 12', 1, 'DHAKA', 28, NULL, 0),
 (5, '488623554', 'CI', 'mirpur 12', 1, 'Dhaka', 29, NULL, 0),
 (6, '48886456543', 'CBI', 'mirpur121', 1, 'dhaka', 30, NULL, 0),
-(7, '36843353', 'Constable', 'Mirpur12', 2, 'Dhaka', 36, NULL, 1),
-(8, '36485145345', 'Constable', 'Mirpur 12', 2, 'Dhaka', 38, NULL, 2);
+(7, '36843353', 'Constable', 'Mirpur12', 2, 'Dhaka', 36, NULL, 2),
+(8, '36485145345', 'Constable', 'Mirpur 12', 2, 'Dhaka', 38, NULL, 2),
+(9, '368451', 'Inspector', 'Mirpur 12', 2, 'Dhaka', 40, NULL, 2);
 
 -- --------------------------------------------------------
 
@@ -373,7 +407,10 @@ INSERT INTO `police_requests` (`id`, `user_id`, `category_id`, `description`, `s
 (10, 26, NULL, 'hgf fhjgf tdhtdf', 'Pending', '2026-05-19 18:21:58', 'Theft', 'Complaint', 'Mirpur12', NULL, 0, 0, NULL, NULL),
 (11, 26, NULL, 'dfbgg sb rt b', 'Closed', '2026-05-19 18:24:25', 'Theft', 'Complaint', 'Dhaka', NULL, 0, 1, '2026-05-19 12:25:20', NULL),
 (12, 26, NULL, 'dsag', 'Closed', '2026-05-19 18:31:09', 'Theft', 'Complaint', 'Dhaka', NULL, 0, 1, '2026-05-19 12:32:25', NULL),
-(13, 22, NULL, 'Test request from automation - location field check', 'Pending', '2026-05-19 21:06:19', 'Theft', 'Complaint', 'Dhaka', NULL, 0, 0, NULL, 'Mirpur 12');
+(13, 22, NULL, 'Test request from automation - location field check', 'Pending', '2026-05-19 21:06:19', 'Theft', 'Complaint', 'Dhaka', NULL, 0, 0, NULL, 'Mirpur 12'),
+(14, 35, NULL, 'jvyu jc rf td f ftjv g', 'Closed', '2026-05-20 01:17:28', 'Theft', 'Complaint', 'Dhaka', NULL, 0, 1, '2026-05-19 19:20:33', 'Mirpur 12'),
+(15, 41, NULL, 'sdagf fdsgdar asdfg', 'Closed', '2026-05-20 16:38:37', 'Murder', 'Complaint', 'Dhaka', NULL, 0, 1, '2026-05-20 10:47:07', 'Mirpur 12'),
+(16, 42, NULL, 'gfhhg  dfbv sdf', 'Closed', '2026-05-20 17:41:43', 'Murder', 'Complaint', 'Dhaka', NULL, 0, 1, '2026-05-20 11:45:58', 'Mirpur 12');
 
 -- --------------------------------------------------------
 
@@ -393,17 +430,55 @@ CREATE TABLE `public_cases` (
   `created_by_admin_id` int(11) DEFAULT NULL,
   `is_featured` tinyint(1) DEFAULT NULL,
   `created_at` datetime DEFAULT current_timestamp(),
-  `updated_at` datetime DEFAULT current_timestamp()
+  `updated_at` datetime DEFAULT current_timestamp(),
+  `cover_image` varchar(500) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `public_cases`
 --
 
-INSERT INTO `public_cases` (`id`, `title`, `description`, `area`, `status`, `source_name`, `source_url`, `assigned_officer_id`, `created_by_admin_id`, `is_featured`, `created_at`, `updated_at`) VALUES
-(1, 'Hadi Murder Case', 'High profile murder investigation', 'Dhaka', 'Under Investigation', 'Prothom Alo', 'https://www.prothomalo.com', NULL, NULL, 1, '2026-05-19 19:27:59', '2026-05-19 19:27:59'),
-(2, 'Uttara Rape Case', 'Public demand investigation', 'Dhaka', 'Suspect Identified', 'Daily Star', 'https://www.thedailystar.net', NULL, NULL, 1, '2026-05-19 19:27:59', '2026-05-19 19:27:59'),
-(3, 'Sylhet Missing Case', 'Investigation still ongoing', 'Sylhet', 'Evidence Collected', 'Jamuna TV', 'https://www.jamuna.tv', NULL, NULL, 1, '2026-05-19 19:27:59', '2026-05-19 19:27:59');
+INSERT INTO `public_cases` (`id`, `title`, `description`, `area`, `status`, `source_name`, `source_url`, `assigned_officer_id`, `created_by_admin_id`, `is_featured`, `created_at`, `updated_at`, `cover_image`) VALUES
+(1, 'Hadi Murder Case', 'High profile murder investigation', 'Dhaka', 'Under Investigation', 'Prothom Alo', 'https://www.prothomalo.com', NULL, NULL, 1, '2026-05-19 19:27:59', '2026-05-19 19:27:59', NULL),
+(2, 'Uttara Rape Case', 'Public demand investigation', 'Dhaka', 'Suspect Identified', 'Daily Star', 'https://www.thedailystar.net', NULL, NULL, 1, '2026-05-19 19:27:59', '2026-05-19 19:27:59', NULL),
+(3, 'Sylhet Missing Case', 'Investigation still ongoing', 'Sylhet', 'Evidence Collected', 'Jamuna TV', 'https://www.jamuna.tv', NULL, NULL, 1, '2026-05-19 19:27:59', '2026-05-19 19:27:59', NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `public_case_updates`
+--
+
+CREATE TABLE `public_case_updates` (
+  `id` int(11) NOT NULL,
+  `public_case_id` int(11) DEFAULT NULL,
+  `officer_id` int(11) DEFAULT NULL,
+  `update_message` text DEFAULT NULL,
+  `case_status` varchar(100) DEFAULT NULL,
+  `updated_at` datetime DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `public_demand_cases`
+--
+
+CREATE TABLE `public_demand_cases` (
+  `id` int(11) NOT NULL,
+  `title` varchar(255) DEFAULT NULL,
+  `description` text DEFAULT NULL,
+  `area` varchar(100) DEFAULT NULL,
+  `status` varchar(100) DEFAULT NULL,
+  `source_name` varchar(255) DEFAULT NULL,
+  `source_url` varchar(512) DEFAULT NULL,
+  `assigned_officer_id` int(11) DEFAULT NULL,
+  `created_by_admin_id` int(11) DEFAULT NULL,
+  `is_featured` tinyint(1) DEFAULT NULL,
+  `cover_image` varchar(500) DEFAULT NULL,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `updated_at` datetime DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -428,7 +503,8 @@ CREATE TABLE `tenders` (
 --
 
 INSERT INTO `tenders` (`id`, `title`, `category_id`, `contractor_id`, `area`, `budget`, `deadline`, `status`, `approved_by_authority_id`) VALUES
-(1, 'Road Construction', 1, 1, 'Dhaka', 5000000.00, '2026-06-30', 'Ongoing', 1);
+(1, 'Road Construction', 1, 1, 'Dhaka', 5000000.00, '2026-06-30', 'Ongoing', 1),
+(2, 'ABC', NULL, NULL, 'Mirpur 12', 5200000.00, '2026-06-19', 'open', NULL);
 
 -- --------------------------------------------------------
 
@@ -441,6 +517,24 @@ CREATE TABLE `tender_assignments` (
   `tender_id` int(11) DEFAULT NULL,
   `officer_id` int(11) DEFAULT NULL,
   `assigned_at` datetime DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `tender_bids`
+--
+
+CREATE TABLE `tender_bids` (
+  `id` int(11) NOT NULL,
+  `tender_id` int(11) DEFAULT NULL,
+  `contractor_id` int(11) DEFAULT NULL,
+  `bid_amount` decimal(14,2) DEFAULT NULL,
+  `completion_days` int(11) DEFAULT NULL,
+  `proposal_text` text DEFAULT NULL,
+  `proposal_document` varchar(255) DEFAULT NULL,
+  `status` varchar(50) DEFAULT NULL,
+  `created_at` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -549,7 +643,12 @@ INSERT INTO `users` (`id`, `name`, `email`, `password`, `role`, `is_approved`, `
 (35, 'kuddus', 'kuddus@gmail.com', '$2b$12$2dvnBXfwVoOhpho0IEJ.WeTnQ1YZyZKStsa2S6qQE1JtZwIRGNCUO', 'citizen', 1, 0),
 (36, 'kudus', 'kudus@gmail.com', '$2b$12$OtnVWzaOlyIgIz9oElAd1uTcCWrtGLUYYq4S0El84xj8I.hKGbw.i', 'officer', 1, 0),
 (37, 'Samiul', 'authority3@gmail.com', '$2b$12$Nt7/uCx1CkU.Xu7j6beaJ.eOIfFqkZt/JlahC8qs1js16wWLIubMW', 'authority', 1, 0),
-(38, 'Samiul', 'mirpur@gmail.com', '$2b$12$MDRkMCQfUZuAJCODFknL9.xdzrr8340ULMT2nv.yd0oI5DQErt6Yi', 'officer', 1, 0);
+(38, 'Samiul', 'mirpur@gmail.com', '$2b$12$MDRkMCQfUZuAJCODFknL9.xdzrr8340ULMT2nv.yd0oI5DQErt6Yi', 'officer', 1, 0),
+(39, 'Emon', 'Emon@gmail.com', '$2b$12$EhJ5tVKqiVjMx/.5f/bp6eWSdhd6IZ63LFZ.qRfO04uiASNkkgeRy', 'citizen', 1, 0),
+(40, 'newofficer', 'newofficer@gmail.com', '$2b$12$t5biwsPGOQOpbYDkzytn.OrT3fCGunB3iSJHsbj4wX3bvq1fdcbcy', 'officer', 1, 0),
+(41, 'farhan sadik', 'farhan1@gmai.com', '$2b$12$0OnrUBniI8mMrO6DUR/R8esJkhaBi37fHZdGfoPNRYot5dR09e2vi', 'citizen', 1, 0),
+(42, 'tanmal', 'tanmal@gmail.com', '$2b$12$zXTe8/YQ5TOFPJcr8DUYcO.oy/Ocr23hALE3ToWVd31GssmIthsMm', 'citizen', 1, 0),
+(43, 'tamal', 'contractor@gmail.com', '$2b$12$S2fZzRgbeFhK3eFvMCKa9OrOXqS10IPkBmb/i0xGBrvGlwN/XpTmK', 'contractor', 1, 0);
 
 -- --------------------------------------------------------
 
@@ -577,7 +676,10 @@ INSERT INTO `user_profiles` (`id`, `user_id`, `phone`, `address`) VALUES
 (8, 32, '455888', ''),
 (9, 33, '55555555', 'mirpur 12'),
 (10, 34, '86311743132', ''),
-(11, 35, '364981365', '');
+(11, 35, '364981365', ''),
+(12, 39, '361854651454', ''),
+(13, 41, '3488635457', ''),
+(14, 42, '54134146456', '');
 
 -- --------------------------------------------------------
 
@@ -611,7 +713,10 @@ INSERT INTO `user_verification` (`id`, `user_id`, `phone_verified`, `nid_verifie
 (8, 32, 1, 0, '571999', NULL, NULL, NULL, 0, NULL),
 (9, 33, 1, 1, '978257', NULL, '123456789', '2016-05-16', 1, NULL),
 (10, 34, 0, 0, '204533', NULL, NULL, NULL, 0, NULL),
-(11, 35, 1, 1, '422964', NULL, '1234567890', '1999-04-03', 1, 'uploads\\nid\\35_1779150243_nid.jpg');
+(11, 35, 1, 1, '422964', NULL, '1234567890', '1999-04-03', 1, 'uploads\\nid\\35_1779150243_nid.jpg'),
+(12, 39, 1, 0, '635514', NULL, NULL, NULL, 0, NULL),
+(13, 41, 1, 1, '243901', NULL, '1234567890', '1999-04-03', 1, 'uploads\\nid\\41_1779273423_nid.jpg'),
+(14, 42, 1, 1, '324544', NULL, '1234567890', '1999-04-03', 1, 'uploads\\nid\\42_1779277169_nid.jpg');
 
 --
 -- Indexes for dumped tables
@@ -713,6 +818,23 @@ ALTER TABLE `public_cases`
   ADD KEY `ix_public_cases_id` (`id`);
 
 --
+-- Indexes for table `public_case_updates`
+--
+ALTER TABLE `public_case_updates`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `public_case_id` (`public_case_id`),
+  ADD KEY `officer_id` (`officer_id`),
+  ADD KEY `ix_public_case_updates_id` (`id`);
+
+--
+-- Indexes for table `public_demand_cases`
+--
+ALTER TABLE `public_demand_cases`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `assigned_officer_id` (`assigned_officer_id`),
+  ADD KEY `ix_public_demand_cases_id` (`id`);
+
+--
 -- Indexes for table `tenders`
 --
 ALTER TABLE `tenders`
@@ -728,6 +850,15 @@ ALTER TABLE `tender_assignments`
   ADD PRIMARY KEY (`id`),
   ADD KEY `tender_id` (`tender_id`),
   ADD KEY `officer_id` (`officer_id`);
+
+--
+-- Indexes for table `tender_bids`
+--
+ALTER TABLE `tender_bids`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `tender_id` (`tender_id`),
+  ADD KEY `contractor_id` (`contractor_id`),
+  ADD KEY `ix_tender_bids_id` (`id`);
 
 --
 -- Indexes for table `tender_categories`
@@ -784,7 +915,7 @@ ALTER TABLE `admins`
 -- AUTO_INCREMENT for table `audit_logs`
 --
 ALTER TABLE `audit_logs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
 
 --
 -- AUTO_INCREMENT for table `authorities`
@@ -802,19 +933,19 @@ ALTER TABLE `case_documents`
 -- AUTO_INCREMENT for table `case_updates`
 --
 ALTER TABLE `case_updates`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
 
 --
 -- AUTO_INCREMENT for table `contractors`
 --
 ALTER TABLE `contractors`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `crime_assignments`
 --
 ALTER TABLE `crime_assignments`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT for table `crime_categories`
@@ -832,19 +963,19 @@ ALTER TABLE `demo_nid_data`
 -- AUTO_INCREMENT for table `notifications`
 --
 ALTER TABLE `notifications`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT for table `officers`
 --
 ALTER TABLE `officers`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `police_requests`
 --
 ALTER TABLE `police_requests`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT for table `public_cases`
@@ -853,15 +984,33 @@ ALTER TABLE `public_cases`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
+-- AUTO_INCREMENT for table `public_case_updates`
+--
+ALTER TABLE `public_case_updates`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `public_demand_cases`
+--
+ALTER TABLE `public_demand_cases`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `tenders`
 --
 ALTER TABLE `tenders`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `tender_assignments`
 --
 ALTER TABLE `tender_assignments`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `tender_bids`
+--
+ALTER TABLE `tender_bids`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
@@ -886,19 +1035,19 @@ ALTER TABLE `tender_updates`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=44;
 
 --
 -- AUTO_INCREMENT for table `user_profiles`
 --
 ALTER TABLE `user_profiles`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `user_verification`
 --
 ALTER TABLE `user_verification`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- Constraints for dumped tables
@@ -974,6 +1123,19 @@ ALTER TABLE `public_cases`
   ADD CONSTRAINT `public_cases_ibfk_1` FOREIGN KEY (`assigned_officer_id`) REFERENCES `officers` (`id`);
 
 --
+-- Constraints for table `public_case_updates`
+--
+ALTER TABLE `public_case_updates`
+  ADD CONSTRAINT `public_case_updates_ibfk_1` FOREIGN KEY (`public_case_id`) REFERENCES `public_demand_cases` (`id`),
+  ADD CONSTRAINT `public_case_updates_ibfk_2` FOREIGN KEY (`officer_id`) REFERENCES `officers` (`id`);
+
+--
+-- Constraints for table `public_demand_cases`
+--
+ALTER TABLE `public_demand_cases`
+  ADD CONSTRAINT `public_demand_cases_ibfk_1` FOREIGN KEY (`assigned_officer_id`) REFERENCES `officers` (`id`);
+
+--
 -- Constraints for table `tenders`
 --
 ALTER TABLE `tenders`
@@ -987,6 +1149,13 @@ ALTER TABLE `tenders`
 ALTER TABLE `tender_assignments`
   ADD CONSTRAINT `tender_assignments_ibfk_1` FOREIGN KEY (`tender_id`) REFERENCES `tenders` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `tender_assignments_ibfk_2` FOREIGN KEY (`officer_id`) REFERENCES `officers` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `tender_bids`
+--
+ALTER TABLE `tender_bids`
+  ADD CONSTRAINT `tender_bids_ibfk_1` FOREIGN KEY (`tender_id`) REFERENCES `tenders` (`id`),
+  ADD CONSTRAINT `tender_bids_ibfk_2` FOREIGN KEY (`contractor_id`) REFERENCES `contractors` (`id`);
 
 --
 -- Constraints for table `tender_documents`

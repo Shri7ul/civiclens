@@ -35,7 +35,7 @@ function Sidebar({ role, onNavigate }: { role: UserRole; onNavigate?: () => void
         </span>
       </Link>
       <nav className="flex flex-1 flex-col gap-2">
-        {role === "contractor" && (
+        { (role === "contractor" || role === "authority") && (
           <div className="mb-2 px-3.5 text-xs font-semibold uppercase text-slate-500">Tender Management</div>
         )}
         {items.map(({ title, href, icon: Icon }) => {
