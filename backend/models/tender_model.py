@@ -8,6 +8,8 @@ from sqlalchemy import (
 )
 
 from database import Base
+from sqlalchemy import DateTime
+from sqlalchemy.sql import func
 
 class Tender(Base):
 
@@ -36,3 +38,4 @@ class Tender(Base):
         ForeignKey("contractors.id"),
         nullable=True
     )
+    awarded_at = Column(DateTime(timezone=True), nullable=True, server_default=None)

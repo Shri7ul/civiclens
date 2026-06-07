@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useParams } from "next/navigation";
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { useApiQuery } from "@/hooks/use-api-query";
@@ -9,15 +9,14 @@ import { tenderService } from "@/services/tender.service";
 import { useAuth } from "@/context/auth-context";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
 
-export default function TenderDetailPage({ params }: { params?: { id?: string } }) {
+export default function TenderDetailPage() {
   const routeParams = useParams();
-  const paramId = params?.id ?? routeParams?.id;
-  const id = Number(paramId);
+  const id = Number(routeParams?.id);
   const { session } = useAuth();
   const tenderQ = useApiQuery(() => tenderService.get(id), [id]);
   const bidsQ = useApiQuery(() => tenderService.bids(id), [id]);
+  const updatesQ = useApiQuery(() => tenderService.projectUpdates(id), [id]);
   const [file, setFile] = useState<File | null>(null);
   const [bidAmount, setBidAmount] = useState(0);
   const [completionDays, setCompletionDays] = useState(0);
@@ -104,6 +103,29 @@ export default function TenderDetailPage({ params }: { params?: { id?: string } 
                   ))}
                 </tbody>
               </table>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {(tender.status && tender.status !== 'open') && (
+        <Card>
+          <CardHeader><CardTitle>Contractor Progress</CardTitle></CardHeader>
+          <CardContent>
+            {updatesQ.loading ? <div>Loading progress...</div> : (
+              <div>
+                <div className="text-sm">Project Status: {tender.status ?? '-'}</div>
+                <div className="text-sm">Progress: {updatesQ.data && updatesQ.data.length > 0 ? `${updatesQ.data[0].progress_percent}%` : "0%"}</div>
+                <div className="w-full bg-slate-200 h-3 rounded mt-1"><div className="bg-green-500 h-3 rounded" style={{ width: `${updatesQ.data && updatesQ.data.length > 0 ? updatesQ.data[0].progress_percent : 0}%`, transition: 'width 600ms' }} /></div>
+                <div className="mt-3 text-sm font-medium">Latest Updates</div>
+                {updatesQ.data && updatesQ.data.length > 0 ? (
+                  <ul className="list-disc pl-5 mt-2">
+                    {updatesQ.data.slice(0,5).map((u:any) => <li key={u.id} className="text-sm">{u.progress_percent}% - {u.update_text}</li>)}
+                  </ul>
+                ) : (
+                  <div className="text-sm text-slate-400">Progress: 0%</div>
+                )}
+              </div>
             )}
           </CardContent>
         </Card>

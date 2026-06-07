@@ -27,26 +27,38 @@ export function TenderTable() {
 export function TenderParticipationTable() {
   const { session } = useAuth();
   const query = useApiQuery(
-    () => session ? tenderService.participationStatus(session.user_id) : Promise.resolve([]),
+    () => session ? tenderService.myBids(session.user_id) : Promise.resolve([]),
     [session?.user_id],
   );
 
   if (query.loading) return <Skeleton className="h-56" />;
   if (query.error) return <EmptyState title="Could not load participation status" description={query.error} />;
-  if (!query.data?.length) return <EmptyState title="No participation records" description="Submitted tender participation records will appear here." />;
+  if (!query.data?.length) return <EmptyState title="No applications" description="Your submitted bids will appear here." />;
 
   return (
     <TableWrap>
       <Table>
-        <thead><tr><Th>ID</Th><Th>Tender</Th><Th>Status</Th><Th>Submitted</Th><Th>Remarks</Th></tr></thead>
+        <thead>
+          <tr>
+            <Th>Tender Title</Th>
+            <Th>Area</Th>
+            <Th>Bid Amount</Th>
+            <Th>Completion Days</Th>
+            <Th>Status</Th>
+            <Th>Submitted Date</Th>
+            <Th>Action</Th>
+          </tr>
+        </thead>
         <tbody>
           {query.data.map((item) => (
             <tr key={item.id}>
-              <Td>{item.id}</Td>
-              <Td>{item.tender_title ?? item.tender_id ?? "-"}</Td>
-              <Td><Badge>{item.status}</Badge></Td>
-              <Td>{item.submitted_at ?? "-"}</Td>
-              <Td>{item.remarks ?? "-"}</Td>
+              <Td>{item.tender_title ?? "-"}</Td>
+              <Td>{item.area ?? "-"}</Td>
+              <Td>{item.bid_amount != null ? item.bid_amount : "-"}</Td>
+              <Td>{item.completion_days ?? "-"}</Td>
+              <Td><Badge>{item.status ?? "submitted"}</Badge></Td>
+              <Td>{item.created_at ?? "-"}</Td>
+              <Td><a className="text-cyan-400" href={`/contractor/my-applications/${item.id}`}>Open</a></Td>
             </tr>
           ))}
         </tbody>

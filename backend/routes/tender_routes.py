@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 import os, uuid
 
 from models.tender_model import Tender
+from sqlalchemy.sql import func
 from models.contractor_model import Contractor
 from models.user_model import User
 from models.notification_model import Notification
@@ -164,6 +165,7 @@ def award_tender(tender_id: int, bid_id: int, db: Session = Depends(get_db)):
     # mark tender awarded and set contractor
     tender.status = "awarded"
     tender.contractor_id = bid.contractor_id
+    tender.awarded_at = func.now()
     db.add(tender)
 
     # update bids: awarded for winner, rejected for others

@@ -59,6 +59,12 @@ checks = [
         'column': 'public_case_id',
         'ddl': "CREATE TABLE public_case_updates (\n+            id INT AUTO_INCREMENT PRIMARY KEY,\n+            public_case_id INT NOT NULL,\n+            officer_id INT NULL,\n+            update_message TEXT,\n+            case_status VARCHAR(100),\n+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP\n+        )"
     }
+,
+    {
+        'table': 'tenders',
+        'column': 'awarded_at',
+        'ddl': "ALTER TABLE tenders ADD COLUMN awarded_at DATETIME NULL"
+    }
 ]
 
 with engine.connect() as conn:

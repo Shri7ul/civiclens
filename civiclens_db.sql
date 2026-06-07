@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 06, 2026 at 07:17 PM
+-- Generation Time: Jun 07, 2026 at 04:15 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -332,7 +332,8 @@ INSERT INTO `notifications` (`id`, `user_id`, `message`, `is_read`, `req_id`) VA
 (15, 41, 'Officer marked your case #15 as Solved. Please confirm if the issue is resolved or mark Not Solved.', 0, 15),
 (16, 40, 'Citizen confirmed case #15 as solved. Case is now closed.', 0, 15),
 (17, 42, 'Officer marked your case #16 as Solved. Please confirm if the issue is resolved or mark Not Solved.', 0, 16),
-(18, 40, 'Citizen confirmed case #16 as solved. Case is now closed.', 0, 16);
+(18, 40, 'Citizen confirmed case #16 as solved. Case is now closed.', 0, 16),
+(19, 43, 'You were awarded tender #2: ABC', 0, 2);
 
 -- --------------------------------------------------------
 
@@ -411,6 +412,28 @@ INSERT INTO `police_requests` (`id`, `user_id`, `category_id`, `description`, `s
 (14, 35, NULL, 'jvyu jc rf td f ftjv g', 'Closed', '2026-05-20 01:17:28', 'Theft', 'Complaint', 'Dhaka', NULL, 0, 1, '2026-05-19 19:20:33', 'Mirpur 12'),
 (15, 41, NULL, 'sdagf fdsgdar asdfg', 'Closed', '2026-05-20 16:38:37', 'Murder', 'Complaint', 'Dhaka', NULL, 0, 1, '2026-05-20 10:47:07', 'Mirpur 12'),
 (16, 42, NULL, 'gfhhg  dfbv sdf', 'Closed', '2026-05-20 17:41:43', 'Murder', 'Complaint', 'Dhaka', NULL, 0, 1, '2026-05-20 11:45:58', 'Mirpur 12');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `project_updates`
+--
+
+CREATE TABLE `project_updates` (
+  `id` int(11) NOT NULL,
+  `tender_id` int(11) DEFAULT NULL,
+  `contractor_id` int(11) DEFAULT NULL,
+  `progress_percent` int(11) DEFAULT NULL,
+  `update_text` text DEFAULT NULL,
+  `created_at` datetime DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `project_updates`
+--
+
+INSERT INTO `project_updates` (`id`, `tender_id`, `contractor_id`, `progress_percent`, `update_text`, `created_at`) VALUES
+(1, 2, 2, 10, 'dgfh dfsg', '2026-06-07 07:37:51');
 
 -- --------------------------------------------------------
 
@@ -495,16 +518,17 @@ CREATE TABLE `tenders` (
   `budget` decimal(12,2) DEFAULT NULL,
   `deadline` date DEFAULT NULL,
   `status` varchar(50) DEFAULT NULL,
-  `approved_by_authority_id` int(11) DEFAULT NULL
+  `approved_by_authority_id` int(11) DEFAULT NULL,
+  `awarded_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `tenders`
 --
 
-INSERT INTO `tenders` (`id`, `title`, `category_id`, `contractor_id`, `area`, `budget`, `deadline`, `status`, `approved_by_authority_id`) VALUES
-(1, 'Road Construction', 1, 1, 'Dhaka', 5000000.00, '2026-06-30', 'Ongoing', 1),
-(2, 'ABC', NULL, NULL, 'Mirpur 12', 5200000.00, '2026-06-19', 'open', NULL);
+INSERT INTO `tenders` (`id`, `title`, `category_id`, `contractor_id`, `area`, `budget`, `deadline`, `status`, `approved_by_authority_id`, `awarded_at`) VALUES
+(1, 'Road Construction', 1, 1, 'Dhaka', 5000000.00, '2026-06-30', 'Ongoing', 1, NULL),
+(2, 'ABC', NULL, 2, 'Mirpur 12', 5200000.00, '2026-06-19', 'awarded', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -536,6 +560,14 @@ CREATE TABLE `tender_bids` (
   `status` varchar(50) DEFAULT NULL,
   `created_at` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `tender_bids`
+--
+
+INSERT INTO `tender_bids` (`id`, `tender_id`, `contractor_id`, `bid_amount`, `completion_days`, `proposal_text`, `proposal_document`, `status`, `created_at`) VALUES
+(1, 2, 2, 5500000.00, 45, 'hds dfgsd ghdsfv ', NULL, 'rejected', '2026-06-07 06:34:44'),
+(2, 2, 2, 5500000.00, 63, 'hkj ggh hbbh ', NULL, 'awarded', '2026-06-07 06:43:19');
 
 -- --------------------------------------------------------
 
@@ -810,6 +842,15 @@ ALTER TABLE `police_requests`
   ADD KEY `category_id` (`category_id`);
 
 --
+-- Indexes for table `project_updates`
+--
+ALTER TABLE `project_updates`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `tender_id` (`tender_id`),
+  ADD KEY `contractor_id` (`contractor_id`),
+  ADD KEY `ix_project_updates_id` (`id`);
+
+--
 -- Indexes for table `public_cases`
 --
 ALTER TABLE `public_cases`
@@ -963,7 +1004,7 @@ ALTER TABLE `demo_nid_data`
 -- AUTO_INCREMENT for table `notifications`
 --
 ALTER TABLE `notifications`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT for table `officers`
@@ -976,6 +1017,12 @@ ALTER TABLE `officers`
 --
 ALTER TABLE `police_requests`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+
+--
+-- AUTO_INCREMENT for table `project_updates`
+--
+ALTER TABLE `project_updates`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `public_cases`
@@ -1011,7 +1058,7 @@ ALTER TABLE `tender_assignments`
 -- AUTO_INCREMENT for table `tender_bids`
 --
 ALTER TABLE `tender_bids`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `tender_categories`
@@ -1115,6 +1162,13 @@ ALTER TABLE `officers`
 ALTER TABLE `police_requests`
   ADD CONSTRAINT `police_requests_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `police_requests_ibfk_2` FOREIGN KEY (`category_id`) REFERENCES `crime_categories` (`id`);
+
+--
+-- Constraints for table `project_updates`
+--
+ALTER TABLE `project_updates`
+  ADD CONSTRAINT `project_updates_ibfk_1` FOREIGN KEY (`tender_id`) REFERENCES `tenders` (`id`),
+  ADD CONSTRAINT `project_updates_ibfk_2` FOREIGN KEY (`contractor_id`) REFERENCES `contractors` (`id`);
 
 --
 -- Constraints for table `public_cases`
